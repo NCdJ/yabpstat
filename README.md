@@ -1,18 +1,27 @@
----
-output: github_document
----
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
 
-# yabpstat
+# YABPstat
+
+### YABPstat: Yet Another BPstat
+
+|           Versão em Português           |           English version           |
+| --- | --- |
+| Este package foi desenvolvido no decorrer da UC Projeto Final em Ciência de Dados, 3.º ano, Licenciatura em Ciência de Dados, pelo Iscte-IUL. Tivemos como coordenador da UC o Professor Doutor José Gonçalves Dias, e a orientação do Professor Doutor Jorge Sinval.| This package was developed during the UC Final Project in Data Science, 3rd year, Degree in Data Science, by Iscte-IUL. We had Professor José Gonçalves Dias as coordinator of the UC, and the guidance of Professor Jorge Sinval.|
+|A equipa que o desenvolveu é constituída por: | The team that developed it consists of: |
+
+- Henrique Luís (halsa[at]iscte.iul) <br>
+- Maria Ribeiro (mcroo2[at]iscte-iul.pt) <br>
+- Nelson Jesus (nelson_carvalho_jesus[at]iscte-iul.pt) <br>
+- Pedro Ferreira (pvfaa[at]iscte-iul.pt) <br>
+- Telma Garção (telma_garcao[at]iscte-iul.pt] |
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/NCdJ/yabpstat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/NCdJ/yabpstat/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of yabpstat is to ...
+
 
 ## Installation
 
@@ -26,52 +35,3 @@ devtools::install_github("NCdJ/yabpstat")
 ## Documentation
 
 Full documentation website on: https://NCdJ.github.io/yabpstat
-
-## Documentation
-
-Full documentation website on: https://NCdJ.github.io/yabpstat
-
-## Documentation
-
-Full documentation website on: https://NCdJ.github.io/yabpstat
-
-## Documentation
-
-Full documentation website on: https://NCdJ.github.io/yabpstat
-
-## Documentation
-
-Full documentation website on: https://NCdJ.github.io/yabpstat
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-
-```r
-library(yabpstat)
-#> Error in library(yabpstat): there is no package called 'yabpstat'
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-
-```r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" alt="plot of chunk pressure" width="100%" />
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
