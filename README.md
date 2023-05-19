@@ -39,6 +39,10 @@ Full documentation website on: https://NCdJ.github.io/yabpstat
 
 Full documentation website on: https://NCdJ.github.io/yabpstat
 
+## Documentation
+
+Full documentation website on: https://NCdJ.github.io/yabpstat
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
