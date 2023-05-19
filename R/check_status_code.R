@@ -25,7 +25,6 @@ check_status_code <- function(st_code, lang = "EN") {
 
   check_language(lang)
 
-
   stat_codes <- readRDS(file = "ya_status_codes.rds")
 
   stat_codes <- stat_codes %>%
