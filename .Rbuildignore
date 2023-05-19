@@ -1,0 +1,11 @@
+
+^dev$
+^LICENSE\.md$
+^YABPstat\.Rproj$
+^\.Rproj\.user$
+^yabpstat\.Rproj$
+^README\.Rmd$
+^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

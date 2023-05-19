@@ -1,0 +1,3479 @@
+---
+title: "flat_full.Rmd for working package"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r include=FALSE}
+library(testthat)
+library(httr2)
+library(jsonlite)
+library(DT)
+library(tidyr)
+library(dplyr)
+library(dygraphs)
+library(xts)
+library(utils)
+library(htmltools)
+
+```
+
+<!--
+ You need to run the 'description' chunk in the '0-dev_history.Rmd' file before continuing your code there.
+
+If it is the first time you use {fusen}, after 'description', you can directly run the last chunk of the present file with inflate() inside.
+--> 
+
+```{r load, include=FALSE}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+
+
+```
+
+```{r dataset, include=FALSE}
+# Run all this chunk in the console directly
+pkgload::load_all(path = here::here(), export_all = FALSE)
+
+```
+
+```{r function-ya_status_codes}
+#' ya_status_codes
+#'
+#' data in top_level.
+#'
+#' @format A data frame with 63 rows and 3 variables representing the available status codes in Portuguese and English languages:
+#' \describe{
+#'   \item{ status_code }{  character }
+#'   \item{ description_en }{  character }
+#'   \item{ description_pt }{  character }
+#' }
+#' @source https://developer.mozilla.org/en-US/docs/Web/HTTP/Status & https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status.
+#' 
+#' "ya_status_codes"
+
+```
+
+
+```{r function-ya_favourites}
+#' ya_favourites
+#'
+#' data in top_level.
+#'
+#' @format A data frame with 15 rows and 1 variable, choosen from BPstat observations carousel, representing the user's favourite series ID from BPstat:
+#' \describe{
+#'   \item{ series_id }{  numeric }
+#' }
+#' @source YABPstat
+#' 
+#'"ya_favourites" 
+
+```
+
+
+# Check language
+
+This is an helper function useful to check user input language to use in YABPstat calls do BPstat API.
+    
+```{r function-check_language}
+#' Title: check_language()
+#' 
+#' Description: An helper function that serves as a validation check for user input of the BPstat API supported languages. Currently it uses Portuguese (PT) and English (EN) languages
+#' 
+#' @param lang A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @return Returns an error message if user inputs other option than "PT", "pt", "EN" or "en". It doesn't return any message if the task has been successfully accomplished
+#' 
+#' @noRd
+#' 
+check_language <- function(lang) {
+  if (!(lang %in% c("EN", "en", "PT", "pt"))) {
+    err_msg_lang <- paste0(
+      "At the moment there is no support for that language.",
+      "\n",
+      "Please choose between \"PT\" ou \"EN\"."
+    )
+    stop(err_msg_lang)
+  }
+  
+}
+
+```
+  
+```{r example-check_language, eval = FALSE}
+
+ check_language(lang = "PT")
+
+```
+  
+```{r tests-check_language, eval = FALSE}
+
+test_that("check_language works", {
+  expect_null(check_language(lang = "PT"))
+  expect_error(check_language(lang = "FR"))
+})
+
+```
+
+
+
+# Check Status Code
+
+This is an helper function useful to check any connection errors to BPstat API using the YABPstat package.
+    
+```{r function-check_status_code}
+#' Title: check_status_code()
+#' 
+#' Description: An helper function that checks the response call to BPstat API, used in many different functions in the YABPstat package.
+#' 
+#' @param st_code Status code returned by a call to BPstat API
+#' @param lang A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom dplyr %>%
+#' 
+#' @return Returns a string with the description in Portuguese or English languages, of the status code returned from BPstat API call.
+#' 
+#' @noRd
+#' 
+check_status_code <- function(st_code, lang = "EN") {
+  
+  check_language(lang)
+  
+  stat_codes <- readRDS(file = "ya_status_codes.rds")
+  
+  stat_codes <- stat_codes %>%
+      dplyr::filter(status_code == st_code)
+  
+  if (length(stat_codes) == 0){
+    
+    stop("That status doesn't exists yet.")
+    
+  } else if (lang == "EN" | lang == "en") {
+    
+    stat_codes <- stat_codes %>%
+      dplyr::select(description_en)
+    
+    return(stat_codes)
+    
+  } else if (lang == "PT" | lang == "pt") {
+    
+    stat_codes <- stat_codes %>%
+      dplyr::select(description_pt)
+    
+    return(stat_codes)
+    
+  }
+}
+
+```
+  
+```{r example-check_status_code}
+#' \dontrun{
+#' 
+#'check_status_code(200)
+#'
+#' }
+```
+  
+```{r tests-check_status_code}
+
+#' Test with your dataset in "datasets/"
+#' 
+#'\dontrun{
+# datafile <- "ya_status_codes.rds"
+# 
+# if(!file.exists(datafile)){
+#   
+#   datafile <- file.path("tests", "testthat", datafile)
+#   if (!file.exists(datafile)) {stop(datafile, " does not exist.")}
+#   
+# }
+# 
+# stat_codes <- readRDS(file = datafile)
+# 
+# test_that("check_status_code works", {
+#   expect_type(check_status_code(200), "list")
+#   # expect_error(check_status_code(900), "That status doesn't exists yet.")
+# })
+# }
+```
+  
+
+
+
+
+# Check BPstat API version
+
+This is an helper function useful to check any errors from BPstat API using the YABPstat package due to a different version been deployed without previous warning to the developers. 
+    
+```{r function-check_api_version}
+
+#' Title: check_api_version()
+#' 
+#' Description: An helper function that checks for the BPstat Data API version present in "https://bpstat.bportugal.pt/data/docs?format=openapi"
+#' 
+#' @param bpstat_api_version A string that represents version of current BPStat API
+#' 
+#' @return Returns an message with the current API version
+#' 
+#' @noRd
+#' 
+check_api_version <- function(bpstat_api_version) {
+  if (bpstat_api_version[[2]][[3]] == "v1") {
+    return("v1")
+    
+  } else {
+    return(bpstat_api_version[[2]][[3]])
+  }
+}
+```
+  
+```{r example-check_api_version, eval = FALSE}
+#' \dontrun{
+#'check_api_version()
+#' }
+```
+  
+```{r tests-check_api_version, eval = FALSE}
+#' \dontrun{
+#'test_that("check_api_version works", {
+#'  expect_true() 
+#'})
+#' }
+```
+  
+
+
+
+# Check extension
+
+This is an helper function that checks if a user is saving an rds or csv from any of the YABPstat package save output functions
+    
+```{r function-check_extension}
+#' Title: check_extension
+#' 
+#' Description: This is an helper function that checks if the save output function complies with the requirements of saving files with rds or csv extensions
+#' 
+#' @param extension A string that represents an extension to save information in BPstat to an external file. At the moment there is support only to rds and csv extensions.
+#' 
+#' @return An error message if it is any other format besides rds or csv. Nothing if it all goes well.
+#' 
+#' @noRd
+#' 
+check_extension <- function(extension) {
+  if (!(extension %in% c("RDS", "rds", "csv", "CSV"))) {
+    err_msg_extension <- paste0(
+      "The extension is not supported, yet.",
+      "\n",
+      "Please choose between \"rds\" or \"csv\"."
+    )
+    stop(err_msg_extension)
+  }
+  
+}
+
+```
+  
+```{r example-check_extension}
+#' \dontrun{
+#' check_extension()
+#' }
+```
+  
+```{r tests-check_extension}
+#' \dontrun{
+#' test_that("check_extension works", {
+#'   expect_null(check_extension(extension = "rds"))
+#'   expect_error(check_extension(extension = "txt")) 
+#' })
+#' }
+```
+
+
+# Generate datasets
+
+This is an helper function that, given an href from a BPstat dataset, it returns a dataframe with information associated with that specific dataset.
+    
+```{r function-generate_datasets}
+#' Title: generate_datasets()
+#' 
+#' Description: This is an helper function that given an href from a BPstat dataset, it returns a dataframe with the follow information: version, href, class, source
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom jsonlite fromJSON
+#' @importFrom jsonlite flatten
+#' @importFrom dplyr mutate
+#' @importFrom dplyr %>%
+#' 
+#' @return A dataframe with information about datasets, namely: version, href, class, source
+#' 
+#' @noRd
+#' 
+generate_datasets <- function(dataset_href){
+
+  max_datasets <- 100
+  
+  url <- paste0(dataset_href, "&page_size=", max_datasets)
+  
+  response <- httr2::request(url) %>%
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  content_df <- jsonlite::fromJSON(rawToChar(response$content))
+  
+  datasets_df <- jsonlite::flatten(content_df$link$item)
+  
+  datasets_df <- datasets_df %>% 
+    dplyr::mutate(version = content_df$version,
+                  href = content_df$href,
+                  class = content_df$class,
+                  source = content_df$source)
+  
+  return(datasets_df)
+  
+}
+```
+  
+```{r example-generate_datasets}
+#' \dontrun{
+#' generate_datasets()
+#' }
+```
+  
+```{r tests-generate_datasets}
+#' \dontrun{
+#'test_that("generate_datasets works", {
+#'  expect_true(inherits(generate_datasets, "function")) 
+#'})
+#'}
+```
+
+
+
+# Generate dimensions
+
+This is an helper function that, given an href from a BPstat dimension, it returns a dataframe with information associated with that specific dimension.
+    
+```{r function-generate_dimensions}
+
+#' Title: generate_dimensions()
+#' 
+#' Description: This is an helper function that given an href from a BPstat dimension, it returns a dataframe with the follow information: version, href, class, source, item label, item class, item href 
+#' 
+#' @param dimensions_href An href that represents the path to a dimension in BPstat
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom jsonlite fromJSON
+#' @importFrom jsonlite flatten
+#' @importFrom dplyr mutate
+#' @importFrom dplyr %>%
+#' 
+#' @return A dataframe with information about dimensions, namely: version, href, class, source, item label, item class and item href
+#' 
+#' @noRd
+#' 
+generate_dimensions <- function(dimensions_href){
+  
+  max_datasets <- 100
+  
+  url <- paste0(dimensions_href, "&page_size=", max_datasets)
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+
+  
+  bpstat_dimensions <-
+    jsonlite::fromJSON(rawToChar(response$content))
+  
+  bpstat_dimensions_item <-
+    jsonlite::flatten(bpstat_dimensions$link$item$extension)
+  
+  bpstat_dimensions_item <- bpstat_dimensions_item %>%
+    dplyr::mutate(version = bpstat_dimensions$version,
+                  dimensions_href = bpstat_dimensions$href,
+                  class = bpstat_dimensions$class,
+                  source = bpstat_dimensions$source,
+                  item_label = bpstat_dimensions$link$item$label,
+                  item_class = bpstat_dimensions$link$item$class,
+                  item_href = bpstat_dimensions$link$item$href)
+  
+  return(bpstat_dimensions_item)
+    
+}
+
+```
+  
+```{r example-generate_dimensions}
+#' \dontrun{
+#' generate_dimensions()
+#' }
+```
+  
+```{r tests-generate_dimensions}
+#' \dontrun{
+#' test_that("generate_dimensions works", {
+#'   expect_true(inherits(generate_dimensions, "function")) 
+#' })
+#' }
+```
+
+
+# Save output
+
+This is an helper function that allows to save R objects created by YABPstat functions in user's folder location.
+    
+```{r function-save_output}
+#'
+#' Title: save_output
+#' 
+#' Description: An helper function that allows easyly saving data from YABPstat functions to user's local folder for further use. By default it creates a "data/raw/" folder. 
+#' 
+#' @param r_object The name of the R object to save
+#' @param file_directory The default folder name where the file is saved. Defaults to: "data/raw/"
+#' @param file_name The name of the file to be saved
+#' @param extension The extension name which the file is saved. It only supports "rds" and "csv" for the moment. Defaults to "rds".
+#' 
+#' @return A file with extension "rds" or "csv"
+#' 
+#' @noRd
+
+save_output <- function(r_object, file_directory = "raw", file_name, extension = "rds"){
+  
+  check_extension(extension)
+  
+  if (!dir.exists(paste0(getwd(),
+                         "/data/",
+                         file_directory))) {
+    dir.create(file.path("data", file_directory), recursive = TRUE)
+  }
+  
+  if (extension == "rds" || extension == "RDS") {
+    saveRDS(
+      object = r_object,
+      file = paste0(getwd(),
+                    "/data/",
+                    file_directory,
+                    "/",
+                    file_name,
+                    ".rds")
+    )
+  } else if (extension == "csv" || extension == "CSV") {
+    write.csv(
+      r_object,
+      file = paste0(getwd(),
+                    "/data/",
+                    file_directory,
+                    "/",
+                    file_name,
+                    ".csv"),
+      row.names = TRUE
+    )
+    
+  }
+  
+}
+```
+  
+```{r example-save_output}
+#'\dontrun{
+#' save_output()
+#'
+#'}
+```
+  
+```{r tests-save_output}
+#'\dontrun{}
+# test_that("save_output works", {
+#   expect_true(inherits(save_output, "function")) 
+# })
+#}
+```
+  
+
+
+# Plot serie
+
+This is an helper function that plots a graph representing a BPstat serie ID chosen by the user.
+    
+```{r function-plot_serie}
+#'
+#' Title: plot_serie()
+#' 
+#' Description: This is an helper function to plot series from the main function ya_info_serie()
+#' 
+#' @param id A serie ID from the BPstat.
+#' @param lng A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' @importFrom dplyr tibble
+#' @importFrom tidyr unnest_longer
+#' @importFrom tidyr unnest_wider
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom dplyr select
+#' @importFrom dplyr rename
+#' @importFrom jsonlite fromJSON
+#' @importFrom jsonlite read_json
+#' @importFrom xts xts
+#' @importFrom dygraphs dygraph
+#' 
+#' @return A plot with the data gather from BPstat from the designated serie, chosen by the user
+#' 
+#' @noRd
+#' 
+plot_serie <- function(id, lng){
+  
+  basepath <- "https://bpstat.bportugal.pt"
+  
+  # todos os valores da s\u00e9rie selecionada
+  url_sv <- paste0(basepath,
+                   "/api/observations/?series_ids=",
+                   id)
+  
+  # titulos e etiquetas das s\u00e9ries
+  url_sfv <- paste0(basepath,
+                    "/api/series/?view_full=true&page_size=1&series_ids=",
+                    id)
+
+  response <- httr2::request(url_sfv) %>%
+    httr2::req_user_agent("YABPstat package") %>%
+    httr2::req_perform()
+
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+  }
+
+  url_sv_json <- jsonlite::read_json(url_sv)
+  
+  df_plot <- url_sv_json %>%
+    dplyr::tibble() %>%
+    tidyr::unnest_longer(1) %>%
+    tidyr::unnest_wider(1) %>%
+    dplyr::mutate(dplyr::across(reference_date, as.Date)) %>%
+    dplyr::select(reference_date, value) %>%
+    dplyr::rename(ds = reference_date, y = value)
+  
+  url_sfv_json <- jsonlite::fromJSON(url_sfv)
+  
+  if (lang == "EN" || lang == "en") {
+    titulo <- url_sfv_json[["data"]][["title"]][["EN"]]
+    
+    
+  } else {
+    titulo <- url_sfv_json[["data"]][["title"]][["PT"]]
+    
+  }
+
+  dados <- xts::xts(x = df_plot$y, order.by = df_plot$ds)
+  
+  
+  dygraphs::dygraph(dados, main = titulo) %>%
+    dyOptions(
+      labelsUTC = TRUE,
+      drawGrid = TRUE,
+      colors = "#8F733C",
+      drawPoints = TRUE,
+      pointSize = 2
+    ) %>%
+    dyRangeSelector(height = 40) %>%
+    dyCrosshair(direction = "vertical") %>%
+    dyAxis("x",
+           drawGrid = FALSE,
+           gridLineColor = "#808080") %>%
+    dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
+  
+}
+```
+  
+```{r example-plot_serie}
+
+#'\dontrun{
+#' plot_serie()
+#' }
+#' 
+```
+  
+```{r tests-plot_serie}
+
+#'\dontrun{
+#'test_that("plot_serie works", {
+#'  expect_true(inherits(plot_serie, "function")) 
+#' })
+#' }
+```
+  
+# Data serie
+    
+This is an helper function that shows a table with data from a BPstat serie ID chosen by the user.
+
+```{r function-data_serie}
+
+#' Title: data_serie
+#' 
+#' Description: This is an helper function to show a table with data from a BPstat serie and used from the main function ya_info_serie()
+#' 
+#' @param id A serie ID from the BPstat.
+#' @param lng A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom jsonlite read_json
+#' @importFrom jsonlite fromJSON
+#' @importFrom dplyr between
+#' @importFrom dplyr tibble
+#' @importFrom tidyr unnest_longer
+#' @importFrom tidyr unnest_wider
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom dplyr select
+#' @importFrom htmltools tags
+#' @importFrom DT datatable
+#' 
+#' @return A data tables with information abot the serie
+#' 
+#' @noRd
+#' 
+data_serie <- function(id, lng){
+  
+  basepath <- "https://bpstat.bportugal.pt"
+  
+  url_sv <- paste0(basepath,
+                   "/api/observations/?series_ids=",
+                   series_id)
+  
+  url_sfv <- paste0(basepath,
+                    "/api/series/?view_full=true&page_size=1&series_ids=",
+                    series_id)
+  
+  response <- httr2::request(url_sv) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lng)
+  
+  url_sv_json <- jsonlite::read_json(url_sv)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+  }
+  
+  df_data <- url_sv_json %>%
+    dplyr::tibble() %>%
+    tidyr::unnest_longer(1) %>%
+    tidyr::unnest_wider(1) %>%
+    dplyr::mutate(dplyr::across(reference_date, as.Date),
+                  dplyr::across(pub_date, as.Date)) %>%
+    dplyr::select(reference_date, value, pub_date)
+  
+  url_sfv_json <- jsonlite::fromJSON(url_sfv)
+  
+  if (lng == "EN" || lng == "en") {
+    column_names <-
+      c("Reference date",
+        "Value",
+        "Updated at")
+    
+    capt <- paste0("YABPstat: Information about \"",
+                   url_sfv_json[["data"]][["title"]][["EN"]],
+                   "\"")
+    
+    translate_to <-
+      "//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json"
+    
+    
+  } else {
+    column_names <-
+      c("Data refer\u00eancia",
+        "Valor",
+        "Atualiza\u00e7\u00e3o em")
+    
+    capt <- paste0("YABPstat: Informa\u00e7\u00e3o acerca \"",
+                   url_sfv_json[["data"]][["title"]][["PT"]],
+                   "\"")
+    
+    translate_to <-
+      "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
+    
+  }
+  
+  DT::datatable(
+    data = df_data,
+    extensions = "Buttons",
+    style = "auto",
+    class = "cell-border stripe",
+    rownames = FALSE,
+    colnames = column_names,
+    caption = htmltools::tags$caption(style = "caption-side: top; 
+                                      text-align: center; 
+                                      color:black;  
+                                      font-size:200% ;",
+                                      capt),
+    options = list(
+      columnDefs = list(list(
+        className = "dt-center", targets = c(1)
+      )),
+      searchHighlight = TRUE,
+      search = list(regex = TRUE),
+      order = list(list(0, "asc")),
+      options = list(dom = "Bft",
+                     buttons = c("csv", "excel", "pdf")),
+      language = list(url = translate_to)
+    )
+  )
+  
+    
+}
+```
+  
+```{r example-data_serie}
+#'\dontrun{
+#' data_serie()
+#' }
+```
+  
+```{r tests-data_serie}
+#'\dontrun{
+#'test_that("data_serie works", {
+#'  expect_true(inherits(data_serie, "function")) 
+#'  })
+#'  }
+```
+ 
+# Add favourite
+
+This is an helper function that add new series to user favourites.
+    
+```{r function-add_favourite}
+#'
+#' Title: add_favourite()
+#' 
+#' Description: This is an helper function that adds series ID from BPstat to users favourites.
+#' 
+#' @param id A serie ID from the BPstat.
+#' @param dataset A dataset corresponding to users favourites
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' 
+#' @return A success message from a well succeed insertion of a new serie.
+#' 
+#' @noRd
+#' 
+add_favourite <- function(id, dataset){
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+           "/api/series/?view_full=true&series_ids=",
+           id)
+  
+  if (!is.numeric(id)) {
+    stop("Wrong data type in \"series_id\" input.")
+    
+  }  
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+  }
+  
+  dataset[nrow(dataset) + 1,] <- id
+  
+  dataset <- dataset %>%
+    unique()
+  
+  return(save_output(r_object = dataset,
+                    file_directory = "datasets",
+                    file_name = "YABPstat_favourites",
+                    extension = rds))
+  
+  message("Record added with success.")
+    
+}
+```
+  
+```{r example-add_favourite}
+#'\dontrun{
+#' add_favourite()
+#' }
+```
+  
+```{r tests-add_favourite}
+#'\dontrun{
+# test_that("add_favourite works", {
+#   expect_true(inherits(add_favourite, "function")) 
+#'})
+#'}
+#'
+```
+  
+# Delete favourite
+
+This is an helper function that deletes a serie from user favourites.
+    
+```{r function-delete_favourite}
+#'
+#' Title: delete_favourite
+#' 
+#' Description: This is an helper function that delete BPstat series ID from users favourites.
+#' 
+#' @param id A serie ID from the BPstat.
+#' @param dataset A dataset corresponding to users favourites
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' 
+#' @return A success message from a well succeed deletion of a serie.
+#' 
+#' @noRd
+#' 
+delete_favourite <- function(id, dataset){
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+           "/api/series/?view_full=true&series_ids=",
+           id)
+
+  #check if series_id is numeric
+  if (!is.numeric(id)) {
+    stop("Wrong data type in \"series_id\" input.")
+    
+  }
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+  }
+  
+  if (nrow(dataset) == 0) {
+    stop("Attention: there is no record to delete.")
+  }
+  
+  dataset <- subset(dataset, dataset$series_id == id)
+  
+  return(
+    saveRDS(object = dataset,
+            file = "ya_favourites.rds")
+  )
+  
+  message("Record deleted with success.")
+    
+}
+```
+  
+```{r example-delete_favourite}
+#'\dontrun{
+#'delete_favourite()
+#'}
+```
+  
+```{r tests-delete_favourite}
+#'\dontrun{
+# test_that("delete_favourite works", {
+#   expect_true(inherits(delete_favourite, "function")) 
+# })
+#'}
+```
+   
+
+# ya_api_info()
+
+Shows useful informations about BPstat API.
+    
+```{r function-ya_api_info}
+
+#' Title: ya_api_info()
+#' 
+#' Description: Shows useful informations such as type, status code and description, and version of current BPstat Data API.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom jsonlite fromJSON
+#' @importFrom dplyr %>%
+#' 
+#' @return  A string with type, status code and description, and api version in Portuguese an English languages, and a generalized error message to check internet connection.
+#' 
+#' @export
+#' 
+ya_api_info <- function(lang = "EN") {
+  
+  lang <- "PT"
+  
+  check_language(lang)
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste(basepath_url,
+                      "/data/docs/?format=openapi",
+                      sep = "")
+  
+  tryCatch({
+    
+    response <- httr2::request(url) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+    
+    type <- response %>% 
+      httr2::resp_content_type()    
+
+    api_version <-
+      check_api_version(jsonlite::fromJSON(url))
+
+    st_c <- httr2::resp_status(response)
+
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (lang == "EN" || lang == "en") {
+      if (api_version == "v1") {
+        msg_api <- paste0(
+          "API type: ",
+          type,
+          ".\n",
+          "Status: ",
+          st_c,
+          " - ",
+          status_description,
+          "\n",
+          "API version: ",
+          api_version,
+          "."
+        )
+        
+        message(msg_api)
+        
+      } else {
+        msg_api <- paste0(
+          "API type: ",
+          type,
+          ".\n",
+          "Status: ",
+          st_c,
+          " - ",
+          status_description,
+          "\n",
+          "API version not supported: ",
+          api_version,
+          "."
+        ) 
+        warning(msg_api)
+        
+      }
+      
+    } else if (lang == "PT" || lang == "pt") {
+      if (api_version == "v1") {
+        msg_api <- paste0(
+          "Tipo da API: ",
+          type,
+          ".\n",
+          "Estado: ",
+          st_c,
+          " - ",
+          status_description,
+          "\n",
+          "\u0056\u0065\u0072\u0073\u00e3\u006f da API: ",
+          api_version,
+          "."
+        )
+        
+        message(msg_api)
+        
+      } else {
+        msg_api <- paste0(
+          "Tipo da API: ",
+          type,
+          ".\n",
+          "Estado: ",
+          st_c,
+          " - ",
+          status_description,
+          "\n",
+          "\u0056\u0065\u0072\u0073\u00e3\u006f da API \u006e\u00e3\u006f suportada: ",
+          api_version,
+          "."
+        )
+        
+        warning(msg_api)
+        
+      }
+      
+    }
+    
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+    
+  })
+  
+}
+
+```
+  
+```{r example-ya_api_info}
+#'\dontrun{
+#'ya_api_info()
+#'}
+```
+  
+```{r tests-ya_api_info}
+#'\dontrun{
+#' test_that("ya_api_info works", {
+#'   expect_message(ya_api_info(lang="PT"))
+#'   expect_error(ya_api_info(lang="FR")) 
+#' })
+#'}
+```
+
+
+
+# ya_get_domain()
+
+This function gathers information about BPstat domains located at "https://bpstat.bportugal.pt/data/v1/domains/?lang=PT" or "https://bpstat.bportugal.pt/data/v1/domains/?lang=EN"
+    
+```{r function-ya_get_domain}
+
+#' Title: ya_get_domain()
+#' 
+#' Description: This function gathers information about BPstat domains and makes visible to the user in a table format for better visualization and comprehension. The returned fields are: 
+#' ID - The unique ID of the domain in the BPstat structure and identification.
+#' Parent ID - The ID of the parent section (none if it is a top level domain)
+#' Order - The order where it is displayed in the BPstat theme organization
+#' Label - The label of the domain
+#' Short label - Short label of the domain 
+#' Description - The domain description
+#' Has series - If the domain has series (True if it has, False if it has not)
+#' Last update - Last date when the domain has been updated
+#' Number of series - Number of series that the domain has
+#' Number of datasets - Number of datasets that the domain has
+#' Domain URL - The Uniform Resource Location of the domain in BPstat
+#' Dataset URL - The Uniform Resource Location of the dataset in BPstat
+#' Dimension URL - The Uniform Resource Location of the dimension in BPstat
+#' 
+#' @param lang A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom jsonlite fromJSON
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' @importFrom dplyr tibble
+#' @importFrom DT datatable
+#' @importFrom htmltools tag
+#' 
+#' @return A DT table in the RStudio viewer
+#' 
+#' @export
+#' 
+ya_get_domain <- function(lang = "EN"){
+  
+  check_language(lang)
+  
+  lang <- "PT"
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+              "/data/v1/domains/?lang=",
+              toupper(lang))
+  
+  tryCatch({
+    
+    response <- httr2::request(url) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+    
+    st_c <- httr2::resp_status(response)
+
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 400, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+      
+    } else {
+      raw_response <- httr2::resp_body_raw(response)
+    
+      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      if (lang == "EN" || lang == "en") {
+        column_names <- c(
+          "ID",
+          'Parent ID',
+          'Order',
+          'Label',
+          'Short label',
+          'Description',
+          'Has series',
+          'Last update',
+          'Number of series',
+          'Number of datasets',
+          'Domain URL',
+          'Dataset URL',
+          'Dimension URL'
+        )
+        
+        capt <- "YABPstat: List of domains"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json'
+        
+      } else if (lang == "PT" || lang == "pt") {
+        column_names <- c(
+          "ID",
+          'N\u00f3 pai',
+          'Ordem',
+          'Etiqueta',
+          'Abreviatura',
+          'Descri\u00e7\u00e3o',
+          'Tem s\u00e9ries',
+          'Ultima atualiza\u00e7\u00e3o',
+          'N\u00famero de s\u00e9ries',
+          'N\u00famero de datasets',
+          'URL do dom\u00ednio',
+          'URL do dataset',
+          'URL da dimens\u00e3o'
+        )
+        
+        capt <- "YABPstat: Lista de dominios"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        
+      } else {
+        err_msg <- paste0("O idioma ainda n\u00e3o \u00e9 suportado.",
+                          "\n",
+                          "Por favor escolha entre \"EN\" ou \"PT\".")
+        stop(err_msg)
+        
+      }
+      
+      DT::datatable(
+        data = temp_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                  text-align: center;
+                  color:black;  font-size:200% ;
+                  padding-top: 20px;
+                  padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = 'dt-center', targets = c(0:12)
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          language = list(url = translate_to)
+        )
+      )
+    }
+    
+    
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+    
+  })
+  
+    
+}
+
+```
+  
+```{r example-ya_get_domain}
+#'\dontrun{
+#'ya_get_domain()
+#'}
+```
+  
+```{r tests-ya_get_domain}
+#\dontrun{
+# test_that("ya_get_domain works", {
+#   expect_true(ya_get_domain(lang = "PT")) 
+#   expect_error(ya_get_domain(lang = "ES"))
+# })
+#}
+```
+  
+<br>
+<br>
+# ya_save_domain()
+
+This function allows saving the information about BPstat domains to an external file.
+    
+```{r function-ya_save_domain}
+
+#' Title: ya_save_domain()
+#' 
+#' Description: A function that saves de information avaliable about the BPstat domains
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' @param extension A string that represents the avaliable extensions to save files. Currently only uses "rds" or "csv". Defaults to "rds"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' @importFrom jsonlite fromJSON
+#' 
+#' @return A file with the available data from the domains in the rds or csv format.
+#' 
+#' @export
+#' 
+ya_save_domain <- function(lang = "EN", extension = "rds"){
+  
+  check_language(lang)
+  
+  check_extension(extension)
+
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 400, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+  } else {
+    
+    raw_response <- httr2::resp_body_raw(response)
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    return(
+      save_output(
+        r_object = temp_df,
+        file_directory = "raw",
+        file_name = "bpstat_domains",
+        extension = extension
+      )
+    )
+  }
+    
+}
+
+```
+  
+```{r example-ya_save_domain}
+#'\dontrun{
+#'ya_save_domain()
+#'}
+```
+  
+```{r tests-ya_save_domain}
+#' \dontrun{
+#' test_that("ya_save_domain works", {
+#'   expect_true(ya_save_domain()) 
+#' })
+#' }
+```
+  
+
+# ya_get_dataset()
+
+This function gathers information about BPstat domains located at "https://bpstat.bportugal.pt/data/v1/domains/{domain_id}/datasets/?lang=PT&page_size=100" or "https://bpstat.bportugal.pt/data/v1/domains/{domain_id}/datasets/?lang=EN&page_size=100"
+    
+```{r function-ya_get_dataset}
+
+#' Title: ya_get_dataset()
+#' 
+#' Description: Gathers information about the datasets in BPstat.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom jsonlite fromJSON
+#' @importFrom dplyr between
+#' @importFrom dplyr select
+#' @importFrom dplyr %>%
+#' @importFrom dplyr tibble
+#' @importFrom tidyr drop_na
+#' @importFrom DT datatable
+#' @importFrom htmltools tags
+#' 
+#' @return A data table with the information about the BPstat domains
+#' 
+#' @export
+#' 
+ya_get_dataset <- function(lang = "EN"){
+
+  check_language(lang)
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  tryCatch({
+    
+    response <- httr2::request(url) %>%
+      httr2::req_user_agent("YABPstat package") %>%
+      httr2::req_perform()
+    
+    st_c <- httr2::resp_status(response)
+    
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 400, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+      
+    } else {
+      raw_response <- httr2::resp_body_raw(response)
+      
+      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      temp_df <- temp_df %>%
+        dplyr::select(datasets_href, num_datasets) %>%
+        tidyr::drop_na()
+      
+      
+      if (lang == "EN" || lang == "en") {
+        column_names <- c('Dataset URL', '\u0023 of datasets')
+        
+        capt <- "YABPstat: Datasets per domain"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json'
+        
+      } else {
+        column_names <- c('URL do dataset', 'N\u00famero de datasets')
+        
+        capt <- "YABPstat: Datasets por dom\u00ednio"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        
+      }
+      
+      DT::datatable(
+        data = temp_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                text-align: center;
+                color:black;  font-size:200% ;
+                padding-top: 20px;
+                padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = 'dt-center', targets = c(1)
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          language = list(url = translate_to)
+        )
+      )
+    }
+    
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Please check your internet connection.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Por favor verifique a sua liga\u00e7\u00e3o \u00e0 internet.")
+      
+    }
+    stop(err_msg)
+    
+  })
+  
+}
+
+```
+  
+```{r example-ya_get_dataset}
+#'\dontrun{
+#'ya_get_dataset()
+#'}
+```
+  
+```{r tests-ya_get_dataset}
+#' \dontrun{
+#' test_that("ya_get_dataset works", {
+#'  expect_true(ya_get_dataset()) 
+#'})
+#'}
+
+```
+
+
+# ya_save_dataset()
+
+This function allows saving the information about BPstat datasets to an external file.
+    
+```{r function-ya_save_dataset}
+
+#' Title ya_save_dataset()
+#' 
+#' Description A function that saves de information avaliable about the BPstat datasets
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' @param extension A string that represents the avaliable extensions to save files. Currently only uses "rds" or "csv". Defaults to "rds"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom dplyr %>%
+#' @importFrom dplyr between
+#' @importFrom dplyr select
+#' @importFrom tidyr drop_na
+#' @importFrom jsonlite fromJSON
+#' 
+#' @return A file with the information about BPstat datasets with the rds or csv extension.
+#' 
+#' @export
+#' 
+ya_save_dataset <- function(lang = "EN", extension = "rds"){
+
+  check_language(lang)
+  
+  check_extension(extension)
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 400, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+  } else {
+    raw_response <- httr2::resp_body_raw(response)
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    temp_df <- temp_df %>%
+      dplyr::select(datasets_href, num_datasets) %>%
+      tidyr::drop_na()
+    
+    return(
+      save_output(
+        r_object = temp_df,
+        file_directory = "raw",
+        file_name = "bpstat_dataset",
+        extension = extension
+      )
+    )
+  }
+  
+}
+
+```
+  
+```{r example-ya_save_dataset}
+#'\dontrun{
+#'ya_save_dataset()
+#'}
+```
+  
+```{r tests-ya_save_dataset}
+#' \dontrun{
+#'test_that("ya_save_dataset works", {
+#'  expect_true(ya_save_dataset()) 
+#'})
+#'}
+
+```
+
+
+# ya_get_dataset_item()
+
+Gathers information available in BPstat about the dataset items.
+    
+```{r function-ya_get_dataset_item}
+
+#' Title: ya_get_dataset_item()
+#' 
+#' Description: A function that gathers information available in BPstat about the dataset items.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 req_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr select
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom tidyr drop_na
+#' @importFrom jsonlite fromJSON
+#' @importFrom htmltools tags
+#' @importFrom DT datatable
+#' 
+#' @return A data table with the information in a more human readable form with a search option using regex.
+#' 
+#' @export
+#' 
+ya_get_dataset_item <- function(lang = "EN"){
+
+  check_language(lang)
+  
+  tmp_dset_df <- dplyr::tibble()
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  tryCatch({
+    
+    response <- httr2::request(url) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+
+    
+    st_c <- httr2::resp_status(response)
+    
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 300, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+      
+    } else {
+      
+      raw_response <- httr2::req_body_raw(response)
+      
+      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      temp_df <- temp_df %>%
+        dplyr::select(datasets_href, num_datasets) %>%
+        tidyr::drop_na()
+      
+      
+      if (lang == "EN" || lang == "en") {
+        column_names <- c('Label',
+                          'Dataset URL',
+                          "Extension ID",
+                          "\u0023 of series",
+                          'Last update')
+        
+        capt <-
+          "YABPstat: Information about datasets"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json'
+        
+      } else {
+        column_names <- c(
+          "Etiqueta",
+          'URL do dataset',
+          'N\u00famero de datasets',
+          "N\u00famero de s\u00e9ries",
+          "Ultima atualiza\u00e7\u00e3o"
+        )
+        
+        capt <-
+          "YABPstat: Informa\u00e7\u00e3o acerca dos datasets"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        
+      }
+      
+      for (row in 1:nrow(temp_df)) {
+        tmp_dset_df <- rbind(tmp_dset_df,
+                             generate_datasets(temp_df$datasets_href[[row]]))
+        
+      }
+      
+      tmp_dset_df <-
+        tmp_dset_df %>% dplyr::select(label,
+                                      href,
+                                      extension.id,
+                                      extension.num_series,
+                                      extension.obs_updated_at)
+      
+      DT::datatable(
+        data = tmp_dset_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                  text-align: center;
+                  color:black;  font-size:200% ;
+                  padding-top: 20px;
+                  padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = 'dt-center', targets = c(3)
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          language = list(url = translate_to)
+        )
+      )
+    }
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+    
+  })
+
+}
+
+```
+  
+```{r example-ya_get_dataset_item}
+#'\dontrun{
+#'ya_get_dataset_item()
+#'}
+```
+  
+```{r tests-ya_get_dataset_item}
+#'\dontrun{
+#'test_that("ya_get_dataset_item works", {
+#'  expect_true(inherits(ya_get_dataset_item, "function")) 
+#'})
+#'}
+#'
+```
+    
+
+# ya_save_dataset_item()
+
+This function allows saving the information about BPstat datasets items to an external file.
+    
+```{r function-ya_save_dataset_item}
+
+#' Title: ya_save_dataset_item()
+#' 
+#' Description: A function that saves de information available about the BPstat datasets
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' @param extension A string that represents the available extensions to save files. Currently only uses "rds" or "csv". Defaults to "rds"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom jsonlite fromJSON
+#' @importFrom tidyr drop_na
+#' 
+#' @return A file with the information about BPstat dataset items with the rds or csv extension.
+#' 
+#' @export
+#' 
+ya_save_dataset_item <- function(lang = "EN", extension = "rds"){
+
+  check_language(lang)
+  
+  check_extension(extension)
+  
+  tmp_dset_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 400, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+  } else {
+    raw_response <- httr2::resp_body_raw(response)
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    temp_df <- temp_df %>%
+      dplyr::select(datasets_href, num_datasets) %>%
+      tidyr::drop_na()
+    
+    for (row in 1:nrow(temp_df)) {
+      tmp_dset_df <- rbind(tmp_dset_df,
+                           generate_datasets(temp_df$datasets_href[[row]]))
+      
+    }
+    
+    tmp_dset_df <- tmp_dset_df %>% 
+      dplyr::select(label,
+                   href,
+                   extension.id,
+                   extension.num_series,
+                   extension.obs_updated_at)
+    
+    return(
+      save_output(
+        r_object = tmp_dset_df,
+        file_directory = "raw",
+        file_name = "bpstat_dataset_item",
+        extension = extension
+      )
+    )
+  }
+  
+}
+
+```
+  
+```{r example-ya_save_dataset_item}
+#'\dontrun{
+#'ya_save_dataset_item()
+#'}
+```
+  
+```{r tests-ya_save_dataset_item}
+#'\dontrun{
+#'test_that("ya_save_dataset_item works", {
+#'  expect_true(inherits(ya_save_dataset_item, "function")) 
+#'})
+#'}
+
+```
+  
+
+# ya_get_dimension()
+
+This function gathers information about BPstat domains located at "https://bpstat.bportugal.pt/data/v1/domains/?lang=" [PT || EN]
+    
+```{r function-ya_get_dimension}
+
+#' Title: ya_get_dimension()
+#' 
+#' Description: A function gathers information about BPstat domains located at "https://bpstat.bportugal.pt/data/v1/domains/?lang=" ("PT" or "EN")
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr select
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom tidyr drop_na
+#' @importFrom jsonlite fromJSON
+#' @importFrom DT datatable
+#' @importFrom htmltools tags
+#' 
+#' @return A DT datatable in RStudio viewer pane
+#' 
+#' @export
+#' 
+ya_get_dimension <- function(lang = "EN"){
+
+  check_language(lang)
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  tryCatch({
+    response <- httr2::request(url) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+    
+    
+    st_c <- httr2::resp_status(response)
+    
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 300, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+      
+    } else {
+      raw_response <- httr2::resp_body_raw(response)
+      
+      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      temp_df <- temp_df %>%
+        dplyr::select(dimensions_href, num_series) %>%
+        tidyr::drop_na()
+      
+      
+      if (lang == "EN" || lang == "en") {
+        column_names <- c('Dimension URL', '\u0023 of series')
+        
+        capt <- "YABPstat: List of dimensions"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json'
+        
+      } else {
+        column_names <- c('URL da dimens\u00e3o', 'N\u00famero de s\u00e9ries')
+        
+        capt <- "YABPstat: Lista de dimens\u00f5es"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        
+      }
+      
+      DT::datatable(
+        data = temp_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                  text-align: center;
+                  color:black;  font-size:200% ;
+                  padding-top: 20px;
+                  padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = 'dt-center', targets = c(1)
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          language = list(url = translate_to)
+        )
+      )
+    }
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+    
+  })
+  
+}
+
+```
+  
+```{r example-ya_get_dimension}
+#'\dontrun{
+#'ya_get_dimension()
+#'}
+```
+  
+```{r tests-ya_get_dimension}
+#'\dontrun{
+#'test_that("ya_get_dimension works", {
+#'  expect_true(inherits(ya_get_dimension, "function")) 
+#'})
+#'}
+
+```
+  
+
+# ya_save_dimension()
+
+This function allows saving the information about BPstat dimensions to an external file.
+    
+```{r function-ya_save_dimension}
+
+#' Title: ya_save_dimension()
+#' 
+#' Description: A function that saves de information available about the BPstat dimensions.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' @param extension A string that represents the available extensions to save files. Currently only uses "rds" or "csv". Defaults to "rds"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom jsonlite fromJSON
+#' @importFrom tidyr drop_na
+#' 
+#' @return A file with the information about BPstat dimensions with the rds or csv extension.
+#' 
+#' @export
+#' 
+ya_save_dimension <- function(lang = "EN", extension = "rds"){
+  
+  check_language(lang)
+  
+  check_extension(extension)
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  response <- httr2::request(url) %>%
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 400, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+    
+  } else {
+    raw_response <- httr2::resp_body_raw(response)
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    temp_df <- temp_df %>%
+      dplyr::select(dimensions_href, num_series) %>%
+      tidyr::drop_na()
+    
+    return(
+      save_output(
+        r_object = temp_df,
+        file_directory = "raw",
+        file_name = "bpstat_dimension",
+        extension = extension
+      )
+    )
+  }
+    
+}
+
+```
+  
+```{r example-ya_save_dimension}
+#'\dontrun{
+#'ya_save_dimension()
+#'}
+```
+  
+```{r tests-ya_save_dimension}
+
+#'\dontrun{}
+# test_that("ya_save_dimension works", {
+#   expect_true(inherits(ya_save_dimension, "function")) 
+# })
+#'}
+
+```
+  
+
+# ya_get_dimension_item()
+
+Gathers information avaliable in BPstat about the dimension items.
+    
+```{r function-ya_get_dimension_item}
+
+#' Title: ya_get_dimension_item()
+#' 
+#' Description: A function that gathers information available in BPstat about the dataset items.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr select
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom tidyr drop_na
+#' @importFrom jsonlite fromJSON
+#' @importFrom htmltools tags
+#' @importFrom DT datatable
+#' 
+#' @return A data table with the information in a more human readable form with a search option using regex.
+#' 
+#' @export
+#' 
+ya_get_dimension_item <- function(lang = "EN"){
+  
+  check_language(lang)
+  
+  tmp_dset_df <- dplyr::tibble()
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  tryCatch({
+    
+    response <- httr2::request(url) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+    
+    st_c <- httr2::resp_status(response)
+    
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 300, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+      
+      
+    } else {
+      
+      raw_response <- httr2::resp_body_raw(response)
+      
+      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      temp_df <- temp_df %>%
+        dplyr::select(dimensions_href, num_series) %>%
+        tidyr::drop_na()
+      
+      if (lang == "EN" || lang == "en") {
+        column_names <- c('Description', "Item label", "Item URL")
+        
+        capt <-
+          "YABPstat: Information about dimensions"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json'
+        
+      } else {
+        column_names <- c("Descri\u00e7\u00e3o", "Item", "URL do item")
+        
+        capt <-
+          "YABPstat: Informa\u00e7\u00e3o acerca das dimens\u00f5es"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        
+      }
+      
+      for (row in 1:nrow(temp_df)) {
+        tmp_dset_df <- rbind(tmp_dset_df,
+                             generate_dimensions(temp_df$dimensions_href[[row]]))
+      }
+      
+      
+      tmp_dset_df <-
+        tmp_dset_df %>% dplyr::select(description,
+                                      item_label,
+                                      item_href)
+      
+      DT::datatable(
+        data = tmp_dset_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                  text-align: center;
+                  color:black;  font-size:200% ;
+                  padding-top: 20px;
+                  padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = 'dt-center', targets = c()
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          language = list(url = translate_to)
+        )
+      )
+    }
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+    
+  })
+  
+}
+
+```
+  
+```{r example-ya_get_dimension_item}
+#'\dontrun{
+#'ya_get_dimension_item()
+#'}
+```
+  
+```{r tests-ya_get_dimension_item}
+#'\dontrun{
+#'test_that("ya_get_dimension_item works", {
+#'  expect_true(inherits(ya_get_dimension_item, "function")) 
+#'})
+#'}
+```
+  
+  
+# ya_save_dimension_item()
+
+This function allows saving the information about BPstat dimensions items to an external file.
+    
+```{r function-ya_save_dimension_item}
+
+#' Title: ya_save_dimension_item()
+#' 
+#' Description: A function that saves de information available about the BPstat dimensions items.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' @param extension A string that represents the available extensions to save files. Currently only uses "rds" or "csv". Defaults to "rds"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom dplyr between
+#' @importFrom dplyr tibble
+#' @importFrom dplyr select
+#' @importFrom dplyr %>%
+#' @importFrom jsonlite fromJSON
+#' @importFrom tidyr drop_na
+#' 
+#' @return A file with the information about BPstat dimensions items with the rds or csv extension.
+#' 
+#' @export
+#' 
+ya_save_dimension_item <- function(lang = "EN", extension = "rds"){
+  
+  check_language(lang)
+  
+  check_extension(extension)
+  
+  tmp_dset_df <- dplyr::tibble()
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+    
+  } else {
+    raw_response <- httr2::req_body_raw(response)
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    temp_df <- temp_df %>%
+      dplyr::select(dimensions_href, num_series) %>%
+      tidyr::drop_na()
+    
+    for (row in 1:nrow(temp_df)) {
+      tmp_dset_df <- rbind(tmp_dset_df,
+                           generate_dimensions(temp_df$dimensions_href[[row]]))
+    }
+    
+    
+    tmp_dset_df <- tmp_dset_df %>% 
+      dplyr::select(description,
+                    item_label,
+                    item_href)
+    
+    return(
+      save_output(
+        r_object = tmp_dset_df,
+        file_directory = "raw",
+        file_name = "bpstat_domain_item",
+        extension = extension
+      )
+    )
+  }
+    
+}
+
+```
+  
+```{r example-ya_save_dimension_item}
+#'\dontrun{
+#'ya_save_dimension_item()
+#'}
+```
+  
+```{r tests-ya_save_dimension_item}
+
+#'\dontrun{
+#'test_that("ya_save_dimension_item works", {
+#'  expect_true(inherits(ya_save_dimension_item, "function")) 
+#'})
+#'}
+
+```
+
+
+# ya_get_dimension_description()
+
+Gathers information avaliable in BPstat about the dimension items and description.
+    
+```{r function-ya_get_dimension_description}
+
+#' Title ya_get_dimension_description()
+#' 
+#' Description: A function that gathers information avaliable in BPstat about the dimension items and description. This function takes a little longer to execute.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 req_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom dplyr tibble
+#' @importFrom dplyr rename
+#' @importFrom dplyr %>%
+#' @importFrom tidyr drop_na
+#' @importFrom jsonlite fromJSON
+#' @importFrom DT datatable
+#' @importFrom htmltools tags
+#' 
+#' @return A DT datatable in RStudio viewer pane
+#' 
+#' @export
+#' 
+ya_get_dimension_description <- function(lang = "EN"){
+  
+  check_language(lang)
+  
+  tmp_dset_df <- dplyr::tibble()
+  
+  temp_df <- dplyr::tibble()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+             "/data/v1/domains/?lang=",
+             toupper(lang))
+  
+  tryCatch({
+    
+    response <- httr2::request(url) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+
+    
+    st_c <- httr2::resp_status(response)
+    
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 400, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+      
+      
+    } else {
+      
+      raw_response <- httr2::req_body_raw(response)
+      
+      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      temp_df <- temp_df %>%
+        dplyr::select(dimensions_href, num_series) %>%
+        tidyr::drop_na()
+      
+      for (row in 1:nrow(temp_df)) {
+        tmp_dset_df <- rbind(tmp_dset_df,
+                             generate_dimensions(temp_df$dimensions_href[[row]]))
+      }
+      
+      
+      item_url_status <- function(url) {
+        
+        response <- httr2::request(url) %>% 
+          httr2::req_user_agent("YABPstat package") %>% 
+          httr2::req_perform()
+        
+        return(httr2::resp_status(response))
+        
+      }
+      
+      tmp_dset_df <- tmp_dset_df %>%
+        dplyr::select(item_href) %>%
+        dplyr::mutate(status = sapply(item_href, item_url_status)) %>%
+        dplyr::filter(status == 200) %>%
+        dplyr::select(item_href)
+      
+      full_df <- dplyr::tibble()
+      
+      for (row in 1:nrow(tmp_dset_df)) {
+        tryCatch({
+          tmp_df <- NULL
+          
+          get_description <-
+            httr2::request(tmp_dset_df[row, ]) %>% 
+            httr2::req_user_agent("YABPstat package") %>% 
+            httr2::req_perform()
+          
+          raw_response <- httr2::req_body_raw(get_description)
+          
+          contents <-
+            jsonlite::fromJSON(rawToChar(raw_response))
+          
+          tmp_lst <-
+            do.call(rbind, contents$category$label)
+          
+          tmp_df <- as.data.frame(tmp_lst) %>%
+            dplyr::rename(value = V1)
+          
+          tmp_df <-
+            cbind(label = rownames(tmp_df), tmp_df)
+          
+          rownames(tmp_df) <- 1:nrow(tmp_df)
+          
+          tmp_df <- tmp_df %>%
+            mutate(version = contents$version,
+                   category_label = contents$label,
+                    href = contents$href,
+                    extension_id = contents$extension$id,
+                    extension_description = contents$extension$description,
+                    class = contents$class,
+                    source = contents$source)
+          
+          full_df <- rbind(full_df, tmp_df)
+          
+        },
+        error = function(e) {
+          message("Erro: \n")
+          # print(e)
+          row = row + 1
+        })
+      }
+      
+      if (lang == "EN" | lang == "en") {
+        column_names <-
+          c(
+            "Label",
+            "Value",
+            "Version",
+            "Category label",
+            "Hyperlink",
+            "Extension ID",
+            "Extension description",
+            "Class",
+            "Source"
+          )
+        
+        capt <- "YABPstat: Dimensions description"
+        
+        translate_to <-
+          "//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json"
+        
+      } else {
+        column_names <-
+          c(
+            "Etiqueta",
+            "Valor",
+            "Vers\u00e3o",
+            "Categoria",
+            "Hiperliga\u00e7\u00e3o",
+            "ID extens\u00e3o",
+            "Descri\u00e7\u00e3o da extens\u00e3o",
+            "Classe",
+            "Origem"
+          )
+        
+        capt <-
+          "YABPstat: Descri\u00e7\u00e3o das dimens\u00f5es"
+        
+        translate_to <-
+          "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
+        
+      }
+      
+      DT::datatable(
+        data = full_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                  text-align: center;
+                  color:black;
+                  font-size:200% ;
+                  padding-top: 20px;
+                  padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        escape = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = "dt-center",
+            targets = c(0)
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          order = list(list(0, "asc")),
+          language = list(url = translate_to)
+        )
+      )
+    }
+    
+    
+  }, error = function(e) {
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+    
+  })
+    
+}
+```
+  
+```{r example-ya_get_dimension_description}
+#'\dontrun{
+#'ya_get_dimension_description()
+#'}
+```
+  
+```{r tests-ya_get_dimension_description}
+
+#'\dontrun{
+#'test_that("ya_get_dimension_description works", {
+#'  expect_true(inherits(ya_get_dimension_description, "function")) 
+#'})
+#'}
+
+```
+   
+
+# ya_save_dimension_description()
+
+This function allows saving the information about description of BPstat dimensions to an external file.
+    
+```{r function-ya_save_dimension_description}
+
+#' Title ya_save_dimension_description()
+#' 
+#' Description: A function that saves de information available about the BPstat description of dimensions.
+#' 
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' @param extension A string that represents the available extensions to save files. Currently only uses "rds" or "csv". Defaults to "rds"
+#'
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 req_body_raw
+#' @importFrom dplyr between
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom jsonlite fromJSON
+#' @importFrom tidyr drop_na
+#' 
+#' @return A file with the information about BPstat description of dimensions with the rds or csv extension.
+#' 
+#' @export
+#' 
+ya_save_dimension_description <- function(lang = "EN", extension = "rds"){
+  
+  check_language(lang)
+  
+  check_extension(extension)
+  
+  tmp_dset_df <- data.frame()
+  
+  temp_df <- data.frame()
+  
+  basepath_url <- "https://bpstat.bportugal.pt"
+  
+  url <- paste0(basepath_url,
+                "/data/v1/domains/?lang=",
+                toupper(lang))
+  
+  response <- httr2::request(url) %>% 
+    httr2::req_user_agent("YABPstat package") %>% 
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+  } else {
+    raw_response <- response %>% 
+      httr2::req_body_raw()
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    temp_df <- temp_df %>%
+      dplyr::select(dimensions_href, num_series) %>%
+      tidyr::drop_na()
+    
+    for (row in 1:nrow(temp_df)) {
+      tmp_dset_df <- rbind(tmp_dset_df,
+                           generate_dimensions(temp_df$dimensions_href[[row]]))
+    }
+    
+    tmp_dset_df <- tmp_dset_df %>% dplyr::select(item_href)
+    
+    full_df <- dplyr::tibble()
+    
+    for (row in 1:nrow(tmp_dset_df)) {
+      tryCatch({
+        tmp_df <- NULL
+        
+        get_description <- httr2::request(tmp_dset_df[row, ]) %>% 
+          httr2::req_user_agent("YABPstat package") %>% 
+          httr2::req_perform()
+        
+        raw_get_description <- httr2::req_body_raw(get_description)
+        
+        contents <-
+          jsonlite::fromJSON(rawToChar(raw_get_description))
+        
+        tmp_lst <-
+          do.call(rbind, contents$category$label)
+        
+        tmp_df <- as.data.frame(tmp_lst) %>%
+          dplyr::rename(value = V1)
+        
+        tmp_df <-
+          cbind(label = rownames(tmp_df), tmp_df)
+        
+        rownames(tmp_df) <- 1:nrow(tmp_df)
+        
+        tmp_df <-
+          tmp_df %>% mutate(version = contents$version,
+                            category_label = contents$label,
+                            href = contents$href,
+                            extension_id = contents$extension$id,
+                            extension_description = contents$extension$description,
+                            class = contents$class,
+                            source = contents$source)
+        
+        full_df <- rbind(full_df, tmp_df)
+        
+      },
+      error = function(e) {
+        # There's no need for error message in simple export function
+        # message("Erro: \n")
+        # print(e)
+        row = row + 1
+      })
+      
+    }
+    
+    return(
+      save_output(
+        r_object = full_df,
+        file_directory = "raw",
+        file_name = "bpstat_domain_description",
+        extension = extension
+      )
+    )
+  }
+  
+    
+}
+
+```
+  
+```{r example-ya_save_dimension_description}
+#'\dontrun{
+#'ya_save_dimension_description()
+#'}
+```
+  
+```{r tests-ya_save_dimension_description}
+
+#'\dontrun{
+#'test_that("ya_save_dimension_description works", {
+#'  expect_true(inherits(ya_save_dimension_description, "function")) 
+#'})
+#'}
+
+```
+
+
+# ya_search()
+
+This function allows to search BPstat through the API. The number of results are limited to 200.
+    
+```{r function-ya_search}
+
+#' Title: ya_search()
+#' 
+#' Description: This is a function that allows to the user search directly de BPstat data through the API.
+
+#' @param query A string that represents a query to be executed in BPstat
+#' @param lang A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom utils URLencode
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom httr2 resp_body_json
+#' @importFrom dplyr between
+#' @importFrom dplyr tibble
+#' @importFrom dplyr %>%
+#' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom DT datatable
+#' @importFrom htmltools tags
+#' 
+#' @return A data table with the query results from BPstat.
+#' 
+#' @export
+#' 
+ya_search <- function(query, lang = "EN"){
+  
+  check_language(lang)
+  
+  page_size <- 50
+  
+  basepath <-
+    "https://bpstat.bportugal.pt/api/search/?search="
+  
+  q <- paste0(
+    basepath,
+    utils::URLencode(query),
+    "&code=VET&language=",
+    toupper(lang),
+    "&page=1&page_size=",
+    page_size
+  )
+  
+  
+  if (nchar(query) < 3) {
+    
+    if (lang == "EN" || lang == "en") {
+      err_msg <- paste0(
+        "Not enough letters to make a query.",
+        "\n",
+        "To obtain any results, please use more than 3 characters in the query."
+      )
+      
+    } else {
+      err_msg <-
+        paste0(
+          "N\u00famero de caracteres insuficiente para realizar a pesquisa.",
+          "\n",
+          "Para obten\u00e7\u00e3o de resultados, por favor utilize termos de pesquisa com, pelo menos, 3 caracteres."
+        )
+      
+    }
+    stop(err_msg)
+    
+  } else if (nchar(query) > 200) {
+    stop("The query is limited to 200 characters. Please choose the words wisely.")
+    
+  }
+  
+  response <- httr2::request(q) %>%
+    httr2::req_user_agent("YABPstat package") %>%
+    httr2::req_perform()
+  
+  st_c <- httr2::resp_status(response)
+  
+  status_description <-
+    check_status_code(st_c, lang)
+  
+  if (dplyr::between(st_c, 300, 550)) {
+    stp_msg <- paste0("Estado :",
+                      st_c,
+                      " - ",
+                      status_description,
+                      ".")
+    
+    stop(stp_msg)
+    
+  }
+  
+  raw_response <-  response %>% 
+    httr2::resp_body_json()
+
+  if (raw_response$count == 0) {
+    message("There's no results to show.")
+    
+  } else {
+    if ((raw_response$count - 1) < page_size) {
+      num_pages <- 1
+      
+    } else if ((raw_response$count - 1) > page_size) {
+      if (((raw_response$count - 1) %% page_size) == 0) {
+        num_pages <- as.integer((raw_response$count - 1) / page_size)
+        
+      } else {
+        num_pages <- as.integer(((raw_response$count - 1) / page_size) + 1)
+        
+      }
+      
+    }
+    
+    tryCatch({
+      results_df <- dplyr::tibble()
+      
+      for (pag in 1:num_pages) {
+        
+        results <- NULL
+        
+        q <- paste0(basepath,
+                    utils::URLencode(query),
+                    "&code=VET&language=",
+                    toupper(lang),
+                    "&page=",
+                    pag,
+                    "&page_size=",
+                    page_size)
+
+        results <- httr2::request(q) %>% 
+          httr2::req_user_agent("YABPstat package") %>% 
+          httr2::req_perform() %>% 
+          httr2::resp_body_json()
+
+        results_df <-
+          rbind(results_df, as.data.frame(do.call(rbind, results$data)))
+        
+      }
+      
+      if (lang == "EN" || lang == "en") {
+        column_names <- c("Link", "Title", "Description", "Publication")
+        
+        capt <- "YABPstat: Search results"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json'
+        
+      } else {
+        column_names <-
+          c(
+            "Liga\u00e7\u00e3o",
+            "T\u00edtulo",
+            "Descri\u00e7\u00e3o",
+            "Publica\u00e7\u00e3o"
+          )
+        
+        capt <- "YABPstat: Resultados da pesquisa"
+        
+        translate_to <-
+          '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        
+      }
+      
+      results_df <- results_df %>%
+        dplyr::select(id, title, description, pub_date) %>%
+        dplyr::mutate(
+          link = paste0(
+            "<a href=https://bpstat.bportugal.pt/serie/",
+            id,
+            " target=\"_blank\">",
+            id,
+            "</a>"
+          )
+        ) %>%
+        dplyr::relocate(link, .before = title) %>%
+        dplyr::select(-c(id))
+      
+      
+      DT::datatable(
+        data = results_df,
+        style = "auto",
+        class = "cell-border stripe",
+        caption = htmltools::tags$caption(
+          style = "caption-side: top;
+                        text-align: center;
+                        color:black;  font-size:200% ;
+                        padding-top: 20px;
+                        padding-bottom: 15px;",
+          capt
+        ),
+        rownames = FALSE,
+        escape = FALSE,
+        colnames = column_names,
+        options = list(
+          columnDefs = list(list(
+            className = 'dt-center', targets = c(0)
+          )),
+          searchHighlight = TRUE,
+          search = list(regex = TRUE),
+          language = list(url = translate_to)
+        )
+      )
+      
+    }, error = function(e) {
+      if (lang == "EN" || lang == "en") {
+        err_msg <- paste0("Error: ",
+                          "\n",
+                          "Something went wrong. Please contact the maintainer.")
+        
+      } else {
+        err_msg <- paste0(
+          "Erro: ",
+          "\n",
+          "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento."
+        )
+        
+      }
+      stop(err_msg)
+      
+    })
+  }
+}
+
+
+```
+  
+```{r example-ya_search}
+#'\dontrun{
+#'ya_search(query="ihpc")
+#'}
+
+```
+  
+```{r tests-ya_search}
+
+#'\dontrun{
+#'test_that("ya_search works", {
+#'  expect_true(inherits(ya_search, "function")) 
+#'})
+#'}
+#'
+```
+  
+
+
+# ya_my_favourites()
+
+This function allows user management of favourite series ID from BPstat.
+    
+```{r function-ya_my_favourites}
+#'
+#' Title: ya_my_favourites()
+#' 
+#' Description: this function allows user to add, delete and view favourite series from BPStat
+#' 
+#' @param series_id A serie ID from BPstat. Defaults to 0 (zero)
+#' @param operation A string with the length of 1 (one), representing the following operations:
+#'                      A - add
+#'                      D - delete
+#'                      V - view
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_body_json
+#' @importFrom httr2 resp_status
+#' @importFrom dplyr tibble
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' @importFrom DT datatable
+#' 
+#' @return A file named «ya_favourites» with user favourite series
+#' 
+#' @export
+#' 
+ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
+  
+  check_language(lang)
+  
+  lang <- "EN"
+  favourites <- readRDS(file = "data/ya_favourites.rds")
+  
+  
+  if (!(operation %in% c("A", "a", "D", "d", "V", "v"))) {
+    stop(
+      "Wrong type of operation. \nPlease choose between \"A\" - add, \"D\" - delete and \"V\" - view."
+    )
+  }
+  
+  if ((operation == "A" |
+       operation == "a") & !(series_id == 0)) {
+    add_favourite(id = series_id, dataset = favourites)
+    
+  } else if (operation == "D" |
+             operation == "d" & !(series_id == 0)) {
+    delete_favourite(id = series_id, dataset = favourites)
+    
+  } else if ((operation == "V" |
+              operation == "v") & (series_id == 0)) {
+    basepath <-
+      "https://bpstat.bportugal.pt/data/v1/series/?lang="
+    
+    vec_favourites <-
+      paste(apply(favourites, 1, function(x)
+        paste(x, collapse = ",")), collapse = ",")
+    
+    url_favourites <- paste0(basepath,
+                             toupper(lang),
+                             "&series_ids=",
+                             vec_favourites)
+    
+    if (nchar(url_favourites) > 2048) {
+      stop("The URL is limited to 2048 characters. Too many favourites stored.")
+    }
+    
+    tryCatch({
+      df_favourites <- dplyr::tibble()
+      
+      response <- httr2::request(url_favourites) %>%
+        httr2::req_user_agent("YABPstat package") %>%
+        httr2::req_perform()
+      
+      content <- response %>%
+        httr2::resp_body_json()
+      
+      st_c <-
+        httr2::resp_status(response)
+      
+      status_description <-
+        check_status_code(st_c, lang)
+      
+      if (dplyr::between(st_c, 300, 550)) {
+        stp_msg <- paste0("Estado :",
+                          st_c,
+                          " - ",
+                          status_description,
+                          ".")
+        
+        stop(stp_msg)
+        
+        
+      } else {
+        for (number in 1:nrow(favourites)) {
+          id <- content[[number]][["id"]]
+          
+          descricao <-
+            content[[number]][["description"]]
+          
+          etiqueta <-
+            content[[number]][["label"]]
+          
+          abreviatura <-
+            content[[number]][["short_label"]]
+          
+          atualizacao <-
+            content[[number]][["obs_updated_at"]]
+          
+          new_row <- dplyr::tibble(id,
+                                   descricao,
+                                   etiqueta,
+                                   abreviatura,
+                                   atualizacao)
+          
+          df_favourites <-
+            rbind(df_favourites, new_row)
+          
+        }
+        
+        if (lang == "EN" | lang == "en") {
+          column_names <-
+            c("ID",
+              "Description",
+              "Label",
+              "Short label",
+              "Updated at")
+          
+          capt <- "YABPstat: My favourite series"
+          
+          translate_to <-
+            "//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json"
+          
+        } else {
+          column_names <-
+            c(
+              "ID",
+              "Descri\u00e7\u00e3o",
+              "Etiqueta",
+              "Abreviatura",
+              "Atualiza\u00e7\u00e3o em"
+            )
+          
+          capt <-
+            "YABPstat: As minhas s\u00e9ries favoritas"
+          
+          translate_to <-
+            "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
+          
+        }
+        
+        DT::datatable(
+          data = df_favourites,
+          style = "auto",
+          class = "cell-border stripe",
+          caption = htmltools::tags$caption(
+            style = "caption-side: top;
+                    text-align: center;
+                    color:black;
+                    font-size:200% ;
+                    padding-top: 20px;
+                    padding-bottom: 15px;",
+            capt
+          ),
+          rownames = FALSE,
+          escape = FALSE,
+          colnames = column_names,
+          options = list(
+            columnDefs = list(list(
+              className = "dt-center",
+              targets = c(0)
+            )),
+            searchHighlight = TRUE,
+            search = list(regex = TRUE),
+            order = list(list(0, "asc")),
+            language = list(url = translate_to)
+          )
+        )
+      }
+      
+    }, error = function(e) {
+      if (lang == "EN" || lang == "en") {
+      err_msg <- paste0("Error: ",
+                        "\n",
+                        "Something went wrong. Please contact the maintainer.")
+      
+    } else {
+      err_msg <- paste0("Erro: ",
+                        "\n",
+                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      
+    }
+    stop(err_msg)
+      
+    })
+    
+  } else {
+    stop("Please check your arguments. There's something wrong.")
+  }  
+     
+}
+```
+  
+```{r example-ya_my_favourites}
+#'\dontrun{
+#' ya_my_favourites()
+#' }
+```
+  
+```{r tests-ya_my_favourites}
+#'\dontrun{
+#' test_that("ya_my_favourites works", {
+#'   expect_true(inherits(ya_my_favourites, "function")) 
+#' })
+#' }
+```
+  
+# ya_info_serie()
+
+This function allows to user to plot, see in a table or reuse in other context, data from a determined BPstat serie ID.
+    
+```{r function-ya_info_serie}
+#'
+#' Title: ya_info_serie()
+#' 
+#' Description: A function allows to user to plot, see in a table or reuse in other context, data from a determined BPstat serie ID.
+#' 
+#' @param series_id A serie ID from BPstat. Defaults to 0 (zero)
+#' @param operation A string with the length of 1 (one), representing the following operations:
+#'                      P - plot
+#'                      T - table
+#'                      Df - dataframe
+#' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
+#' 
+#' @importFrom httr2 request
+#' @importFrom httr2 req_user_agent
+#' @importFrom httr2 req_perform
+#' @importFrom httr2 resp_status
+#' @importFrom dplyr between
+#' @importFrom dplyr %>%
+#' @importFrom dplyr tibble
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom dplyr select
+#' @importFrom tidyr unnest_longer
+#' @importFrom tidyr unnest_wider
+#' @importFrom jsonlite read_json
+#' 
+#' @return From the user choice can be a plot, a table or a tibble for further analysis
+#' 
+#' @export
+#' 
+ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
+  
+  check_language(lang)
+  
+  if (!(operation %in% c("P", "p", "T", "t", "Df", "df"))) {
+    stop(
+      "Wrong type of operation. \nPlease choose between \"P\" - plot, \"T\" - table and \"Df\" - dataframe."
+    )
+  }
+  
+  if ((operation == "P" |
+       operation == "p") & !(series_id == 0)) {
+    plot_serie(id = series_id, lng = lang)
+    
+  } else if (operation == "T" |
+             operation == "t" & !(series_id == 0)) {
+    data_serie(id = series_id, lng = lang)
+    
+  } else if (operation == "Df" |
+             operation == "df" & !(series_id == 0)) {
+    df_data <- dplyr::tibble()
+    
+    basepath <- "https://bpstat.bportugal.pt"
+    
+    # todos os valores da s\u00e9rie selecionada
+    url_sv <- paste0(basepath,
+                     "/api/observations/?series_ids=",
+                     series_id)
+    
+    response <- httr2::request(url_sv) %>% 
+      httr2::req_user_agent("YABPstat package") %>% 
+      httr2::req_perform()
+    
+    st_c <- httr2::resp_status(response)
+    
+    status_description <-
+      check_status_code(st_c, lang)
+    
+    if (dplyr::between(st_c, 300, 550)) {
+      stp_msg <- paste0("Estado :",
+                        st_c,
+                        " - ",
+                        status_description,
+                        ".")
+      
+      stop(stp_msg)
+    }
+    
+    url_sv_json <- jsonlite::read_json(url_sv)
+    
+    df_data <- url_sv_json %>%
+      dplyr::tibble() %>%
+      tidyr::unnest_longer(1) %>%
+      tidyr::unnest_wider(1) %>%
+      dplyr::mutate(dplyr::across(reference_date, as.Date),
+                    dplyr::across(pub_date, as.Date)) %>%
+      dplyr::select(-c(series_id, privacy_code, is_highlighted, description))
+    
+    return(df_data)
+    
+    message(
+      "The dataframe contains the following variables:\n
+                id,\n
+                version_id,\n
+                value,\n
+                reference_date,\n
+                pub_date."
+    )
+    
+  } else {
+    stop("Please check your arguments. There's something wrong.")
+  }
+ 
+}
+```
+  
+```{r example-ya_info_serie}
+#'\dontrun{
+#'ya_info_serie(series_id = 12528985)
+#'}
+```
+  
+```{r tests-ya_info_serie}
+#'\dontrun{
+# test_that("ya_info_serie works", {
+#   expect_true(inherits(ya_info_serie, "function")) 
+# })
+#'}
+```
+  

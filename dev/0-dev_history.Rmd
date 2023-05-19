@@ -1,0 +1,131 @@
+---
+title: "Development actions history"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+All commands that you use to use when developing packages...
+
+# First time just after creating the project
+
+-   Fill the following chunk to create the DESCRIPTION of your package
+
+```{r description, eval=FALSE}
+# Describe your package
+fusen::fill_description(
+  pkg = here::here(),
+  fields = list(
+    Title = "YABPstat: Yet Another BPstat",
+    Description = "A package that allows using the BPStat - Estatísticas Online, from Banco de Portugal, public API to access statistical activity for reference purposes (more information in: https://bpstat.bportugal.pt/avisos-legais).",
+    `Authors@R` = c(
+      person(given  = "Henrique", family  = "Luís", email = "halsa@iscte-iul.pt", role = c("aut"), comment = c()),
+      person(given  = "Maria", family  = "Ribeiro", email = "mcroo2@iscte-iul.pt", role = c("aut"),comment = c()),
+      person(given  = "Nelson", family  = "Jesus", email = "nelson_carvalho_jesus@iscte-iul.pt", role = c("aut", "cre"),comment = c()),
+      person(given  = "Pedro", family  = "Ferreira", email = "pvfaa@iscte-iul.pt", role = c("aut"),comment = c()),
+      person(given  = "Telma", family  = "Garção", email = "telma_garcao2@iscte-iul.pt", role = c("aut"),comment = c())
+    )),
+  overwrite = TRUE
+)
+# Define License with use_*_license()
+usethis::use_mit_license(copyright_holder = c("Nelson Jesus, Telma Garção"))
+```
+
+# Start using git
+
+```{r, eval=FALSE}
+usethis::use_git()
+# Deal with classical files to ignore
+usethis::git_vaccinate()
+# Use main for primary branch
+usethis::git_default_branch_rename()
+
+usethis::use_build_ignore(".git")
+```
+
+# Set extra sources of documentation
+
+```{r, eval=FALSE}
+# Install a first time
+remotes::install_local()
+# README
+usethis::use_readme_rmd()
+# Code of Conduct
+usethis::use_code_of_conduct("contact@fake.com")
+# NEWS
+usethis::use_news_md()
+```
+
+**From now, you will need to "inflate" your package at least once to be
+able to use the following commands. Let's go to your flat template, and
+come back here later if/when needed.**
+
+# Package development tools
+
+## Use once
+
+```{r, eval=FALSE}
+# Pipe
+usethis::use_pipe()
+
+# package-level documentation
+usethis::use_package_doc()
+
+# GitHub
+# Add your credentials for GitHub
+usethis::create_github_token()
+gitcreds::gitcreds_set()
+
+# _All-in-one share of your package and its documentation on GitHub
+fusen::init_share_on_github()
+
+# _Or one step at a time
+# Send your project to a new GitHub project (included in `init_share_on_github()`)
+usethis::use_github()
+
+# Set Continuous Integration
+# _GitHub (included in `init_share_on_github()`)
+usethis::use_github_action_check_standard()
+usethis::use_github_action("pkgdown")
+usethis::use_github_action("test-coverage")
+# _GitLab
+gitlabr::use_gitlab_ci(type = "check-coverage-pkgdown")
+```
+
+## Use everytime needed
+
+```{r}
+# Simulate package installation
+pkgload::load_all()
+
+# Generate documentation and deal with dependencies
+attachment::att_amend_desc()
+
+# Check the package
+devtools::check()
+
+# Add a new flat template
+fusen::add_flat_template("add")
+```
+
+# Share the package
+
+```{r}
+# set and try pkgdown documentation website locally
+usethis::use_pkgdown()
+pkgdown::build_site()
+
+# build the tar.gz with vignettes to share with others
+devtools::build(vignettes = TRUE)
+
+# Share your package and its documentation on GitHub
+# usethis::create_github_token()
+# gitcreds::gitcreds_set()
+fusen::init_share_on_github()
+```
+
+```{r}
+fusen::inflate(flat_file = "dev/flat_full.Rmd", vignette_name = "Get started", overwrite = TRUE)
+```
+
+

@@ -1,0 +1,40 @@
+Package: yabpstat
+Title: YABPstat: Yet Another BPstat
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Henrique", "Luís", , "halsa@iscte-iul.pt", role = "aut"),
+    person("Maria", "Ribeiro", , "mcroo2@iscte-iul.pt", role = "aut"),
+    person("Nelson", "Jesus", , "nelson_carvalho_jesus@iscte-iul.pt", role = c("aut", "cre")),
+    person("Pedro", "Ferreira", , "pvfaa@iscte-iul.pt", role = "aut"),
+    person("Telma", "Garção", , "telma_garcao2@iscte-iul.pt", role = "aut")
+  )
+Description: A package that allows using the BPStat - Estatísticas Online,
+    from Banco de Portugal, public API to access statistical activity for
+    reference purposes (more information in:
+    https://bpstat.bportugal.pt/avisos-legais).
+License: MIT + file LICENSE
+URL: https://github.com/NCdJ/yabpstat,
+    https://ncdj.github.io/yabpstat/
+BugReports: https://github.com/NCdJ/yabpstat/issues
+Imports: 
+    dplyr,
+    DT,
+    dygraphs,
+    htmltools,
+    httr2,
+    jsonlite,
+    tidyr,
+    utils,
+    xts
+Suggests: 
+    here,
+    knitr,
+    pkgload,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Config/fusen/version: 0.5.0.9001
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
