@@ -9,7 +9,7 @@
 |           Versão em Português           |           English version           |
 | --- | --- |
 | Este package foi desenvolvido no decorrer da UC Projeto Final em Ciência de Dados, 3.º ano, Licenciatura em Ciência de Dados, pelo Iscte-IUL. Tivemos como coordenador da UC o Professor Doutor José Gonçalves Dias, e a orientação do Professor Doutor Jorge Sinval.| This package was developed during the UC Final Project in Data Science, 3rd year, Degree in Data Science, by Iscte-IUL. We had Professor José Gonçalves Dias as coordinator of the UC, and the guidance of Professor Jorge Sinval.|
-|A equipa que o desenvolveu é constituída por: | The team that developed it consists of: |
+|A equipa que o desenvolveu é constituída por: | The team that developed consists of: |
 
 - Henrique Luís (halsa[at]iscte.iul) <br>
 - Maria Ribeiro (mcroo2[at]iscte-iul.pt) <br>
