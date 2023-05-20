@@ -85,7 +85,7 @@ plot_serie <- function(id, lng){
   
   url_sfv_json <- jsonlite::fromJSON(url_sfv)
   
-  if (lang == "EN" || lang == "en") {
+  if (lng == "EN" || lng == "en") {
     titulo <- url_sfv_json[["data"]][["title"]][["EN"]]
     
     

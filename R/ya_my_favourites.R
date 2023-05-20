@@ -159,15 +159,15 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
         
         DT::datatable(
           data = df_favourites,
-          style = "auto",
-          class = "cell-border stripe",
+          style = 'auto',
+          class = 'cell-border stripe',
           caption = htmltools::tags$caption(
-            style = "caption-side: top;
+            style = 'caption-side: top;
                     text-align: center;
                     color:black;
                     font-size:200% ;
                     padding-top: 20px;
-                    padding-bottom: 15px;",
+                    padding-bottom: 15px;',
             capt
           ),
           rownames = FALSE,
@@ -175,12 +175,12 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
           colnames = column_names,
           options = list(
             columnDefs = list(list(
-              className = "dt-center",
+              className = 'dt-center',
               targets = c(0)
             )),
             searchHighlight = TRUE,
             search = list(regex = TRUE),
-            order = list(list(0, "asc")),
+            order = list(list(0, 'asc')),
             language = list(url = translate_to)
           )
         )

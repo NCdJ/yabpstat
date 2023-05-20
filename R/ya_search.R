@@ -184,14 +184,14 @@ ya_search <- function(query, lang = "EN"){
       
       DT::datatable(
         data = results_df,
-        style = "auto",
-        class = "cell-border stripe",
+        style = 'auto',
+        class = 'cell-border stripe',
         caption = htmltools::tags$caption(
-          style = "caption-side: top;
+          style = 'caption-side: top;
                         text-align: center;
                         color:black;  font-size:200% ;
                         padding-top: 20px;
-                        padding-bottom: 15px;",
+                        padding-bottom: 15px;',
           capt
         ),
         rownames = FALSE,

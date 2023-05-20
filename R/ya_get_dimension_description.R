@@ -34,6 +34,8 @@
 #' #'}
 ya_get_dimension_description <- function(lang = "EN"){
   
+  lang <- "EN"
+  
   check_language(lang)
   
   tmp_dset_df <- dplyr::tibble()
@@ -68,7 +70,7 @@ ya_get_dimension_description <- function(lang = "EN"){
       stop(stp_msg)
       
       
-    } else {
+    } 
       
       raw_response <- httr2::resp_body_raw(response)
       
@@ -83,14 +85,15 @@ ya_get_dimension_description <- function(lang = "EN"){
                              generate_dimensions(temp_df$dimensions_href[[row]]))
       }
       
-      
+
       item_url_status <- function(url) {
         
         response <- httr2::request(url) %>% 
           httr2::req_user_agent("YABPstat package") %>% 
+          httr2::req_error(is_error = function(response) FALSE) %>% 
           httr2::req_perform()
         
-        return(httr2::resp_status(response))
+        return(response$status_code)
         
       }
       
@@ -103,6 +106,7 @@ ya_get_dimension_description <- function(lang = "EN"){
       full_df <- dplyr::tibble()
       
       for (row in 1:nrow(tmp_dset_df)) {
+        
         tryCatch({
           tmp_df <- NULL
           
@@ -189,33 +193,30 @@ ya_get_dimension_description <- function(lang = "EN"){
       
       DT::datatable(
         data = full_df,
-        style = "auto",
-        class = "cell-border stripe",
+        style = 'auto',
+        class = 'cell-border stripe',
         caption = htmltools::tags$caption(
-          style = "caption-side: top;
+          style = 'caption-side: top;
                   text-align: center;
                   color:black;
                   font-size:200% ;
                   padding-top: 20px;
-                  padding-bottom: 15px;",
-          capt
-        ),
+                  padding-bottom: 15px;',
+          capt),
         rownames = FALSE,
         escape = FALSE,
         colnames = column_names,
         options = list(
           columnDefs = list(list(
-            className = "dt-center",
+            className = 'dt-center',
             targets = c(0)
           )),
           searchHighlight = TRUE,
           search = list(regex = TRUE),
-          order = list(list(0, "asc")),
+          order = list(list(0, 'asc')),
           language = list(url = translate_to)
         )
       )
-    }
-    
     
   }, error = function(e) {
     if (lang == "EN" || lang == "en") {
