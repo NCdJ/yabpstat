@@ -25,6 +25,8 @@
 #' }
 generate_dimensions <- function(dimensions_href){
   
+  print(dimensions_href)
+  
   max_datasets <- 100
   
   url <- paste0(dimensions_href, "&page_size=", max_datasets)
@@ -33,9 +35,7 @@ generate_dimensions <- function(dimensions_href){
     httr2::req_user_agent("YABPstat package") %>% 
     httr2::req_perform()
 
-  
-  bpstat_dimensions <-
-    jsonlite::fromJSON(rawToChar(response$content))
+  bpstat_dimensions <- jsonlite::fromJSON(rawToChar(response$body))
   
   bpstat_dimensions_item <-
     jsonlite::flatten(bpstat_dimensions$link$item$extension)

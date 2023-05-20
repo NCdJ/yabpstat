@@ -30,8 +30,11 @@ generate_datasets <- function(dataset_href){
     httr2::req_user_agent("YABPstat package") %>% 
     httr2::req_perform()
   
-  content_df <- jsonlite::fromJSON(rawToChar(response$content))
-  
+  content_df <- response %>% 
+    httr2::resp_body_raw() %>% 
+    rawToChar() %>% 
+    jsonlite::fromJSON()
+
   datasets_df <- jsonlite::flatten(content_df$link$item)
   
   datasets_df <- datasets_df %>% 

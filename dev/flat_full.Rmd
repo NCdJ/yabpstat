@@ -389,6 +389,8 @@ This is an helper function that, given an href from a BPstat dimension, it retur
 #' 
 generate_dimensions <- function(dimensions_href){
   
+  print(dimensions_href)
+  
   max_datasets <- 100
   
   url <- paste0(dimensions_href, "&page_size=", max_datasets)
@@ -1757,12 +1759,16 @@ ya_get_dataset_item <- function(lang = "EN"){
         
       }
 
-      for (row in 1:nrow(temp_df)) {
+      # for (row in 1:nrow(temp_df)) {
+      for (row in 1:1) {
+        
+        
+        
         tmp_dset_df <- rbind(tmp_dset_df,
                              generate_datasets(temp_df$datasets_href[[row]]))
         
       }
-      
+      View(tmp_dset_df)
       tmp_dset_df <-
         tmp_dset_df %>% dplyr::select(label,
                                       href,

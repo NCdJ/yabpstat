@@ -30,6 +30,8 @@
 #' #'ya_get_dataset_item()
 #' #'}
 ya_get_dataset_item <- function(lang = "EN"){
+  
+  lang <- "PT"
 
   check_language(lang)
   
@@ -104,13 +106,17 @@ ya_get_dataset_item <- function(lang = "EN"){
           '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
         
       }
-      
-      for (row in 1:nrow(temp_df)) {
+
+      # for (row in 1:nrow(temp_df)) {
+      for (row in 1:1) {
+        
+        
+        
         tmp_dset_df <- rbind(tmp_dset_df,
                              generate_datasets(temp_df$datasets_href[[row]]))
         
       }
-      
+      View(tmp_dset_df)
       tmp_dset_df <-
         tmp_dset_df %>% dplyr::select(label,
                                       href,
