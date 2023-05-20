@@ -46,12 +46,10 @@ plot_serie <- function(id, lng){
 
   basepath <- "https://bpstat.bportugal.pt"
   
-  # todos os valores da s\u00e9rie selecionada
   url_sv <- paste0(basepath,
                    "/api/observations/?series_ids=",
                    id)
   
-  # titulos e etiquetas das s\u00e9ries
   url_sfv <- paste0(basepath,
                     "/api/series/?view_full=true&page_size=1&series_ids=",
                     id)

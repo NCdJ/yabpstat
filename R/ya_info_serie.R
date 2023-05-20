@@ -58,7 +58,6 @@ ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
     
     basepath <- "https://bpstat.bportugal.pt"
     
-    # todos os valores da s\u00e9rie selecionada
     url_sv <- paste0(basepath,
                      "/api/observations/?series_ids=",
                      series_id)

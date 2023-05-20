@@ -38,11 +38,11 @@ data_serie <- function(id, lng){
   
   url_sv <- paste0(basepath,
                    "/api/observations/?series_ids=",
-                   series_id)
+                   id)
   
   url_sfv <- paste0(basepath,
                     "/api/series/?view_full=true&page_size=1&series_ids=",
-                    series_id)
+                    id)
   
   response <- httr2::request(url_sv) %>% 
     httr2::req_user_agent("YABPstat package") %>% 
