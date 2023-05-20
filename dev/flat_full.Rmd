@@ -329,8 +329,11 @@ generate_datasets <- function(dataset_href){
     httr2::req_user_agent("YABPstat package") %>% 
     httr2::req_perform()
   
-  content_df <- jsonlite::fromJSON(rawToChar(response$content))
-  
+  content_df <- response %>% 
+    httr2::resp_body_raw() %>% 
+    rawToChar() %>% 
+    jsonlite::fromJSON()
+
   datasets_df <- jsonlite::flatten(content_df$link$item)
   
   datasets_df <- datasets_df %>% 
@@ -394,9 +397,7 @@ generate_dimensions <- function(dimensions_href){
     httr2::req_user_agent("YABPstat package") %>% 
     httr2::req_perform()
 
-  
-  bpstat_dimensions <-
-    jsonlite::fromJSON(rawToChar(response$content))
+  bpstat_dimensions <- jsonlite::fromJSON(rawToChar(response$body))
   
   bpstat_dimensions_item <-
     jsonlite::flatten(bpstat_dimensions$link$item$extension)
@@ -1679,6 +1680,8 @@ Gathers information available in BPstat about the dataset items.
 #' @export
 #' 
 ya_get_dataset_item <- function(lang = "EN"){
+  
+  lang <- "PT"
 
   check_language(lang)
   
@@ -1753,7 +1756,7 @@ ya_get_dataset_item <- function(lang = "EN"){
           '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
         
       }
-      
+
       for (row in 1:nrow(temp_df)) {
         tmp_dset_df <- rbind(tmp_dset_df,
                              generate_datasets(temp_df$datasets_href[[row]]))
