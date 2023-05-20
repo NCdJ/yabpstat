@@ -116,7 +116,7 @@ ya_get_dataset_item <- function(lang = "EN"){
                              generate_datasets(temp_df$datasets_href[[row]]))
         
       }
-      View(tmp_dset_df)
+      
       tmp_dset_df <-
         tmp_dset_df %>% dplyr::select(label,
                                       href,

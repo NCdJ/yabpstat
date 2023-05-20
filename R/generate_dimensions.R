@@ -25,8 +25,6 @@
 #' }
 generate_dimensions <- function(dimensions_href){
   
-  print(dimensions_href)
-  
   max_datasets <- 100
   
   url <- paste0(dimensions_href, "&page_size=", max_datasets)
