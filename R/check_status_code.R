@@ -23,7 +23,9 @@ check_status_code <- function(st_code, lang = "EN") {
 
   check_language(lang)
   
-  stat_codes <- readRDS("data/ya_status_codes.rds")
+  fich <- system.file("ya_status_codes.rds",package = "yabpstat", mustWork = TRUE)
+  
+  stat_codes <- readRDS(file = fich)
   
   stat_codes <- stat_codes %>%
       dplyr::filter(status_code == st_code)

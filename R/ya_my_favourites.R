@@ -36,7 +36,9 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   check_language(lang)
   
-  favourites <- readRDS(file = "data/ya_favourites.rds")
+  fich <- system.file("ya_status_codes.rds",package = "yabpstat", mustWork = TRUE)
+  
+  favourites <- readRDS(file = fich)
   
   
   if (!(operation %in% c("A", "a", "D", "d", "V", "v"))) {
