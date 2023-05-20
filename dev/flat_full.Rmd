@@ -534,13 +534,20 @@ This is an helper function that plots a graph representing a BPstat serie ID cho
 #' @importFrom jsonlite read_json
 #' @importFrom xts xts
 #' @importFrom dygraphs dygraph
+#' @importFrom dygraphs dyOptions
+#' @importFrom dygraphs dyRangeSelector
+#' @importFrom dygraphs dyCrosshair
+#' @importFrom dygraphs dyAxis
+#' @importFrom dygraphs dyAxis
+#' 
+#'  
 #' 
 #' @return A plot with the data gather from BPstat from the designated serie, chosen by the user
 #' 
 #' @noRd
 #' 
 plot_serie <- function(id, lng){
-  
+
   basepath <- "https://bpstat.bportugal.pt"
   
   # todos os valores da s\u00e9rie selecionada
@@ -560,7 +567,7 @@ plot_serie <- function(id, lng){
   st_c <- httr2::resp_status(response)
   
   status_description <-
-    check_status_code(st_c, lang)
+    check_status_code(st_c, lng)
   
   if (dplyr::between(st_c, 300, 550)) {
     stp_msg <- paste0("Estado :",
@@ -597,19 +604,19 @@ plot_serie <- function(id, lng){
   
   
   dygraphs::dygraph(dados, main = titulo) %>%
-    dyOptions(
+    dygraphs::dyOptions(
       labelsUTC = TRUE,
       drawGrid = TRUE,
       colors = "#8F733C",
       drawPoints = TRUE,
       pointSize = 2
-    ) %>%
-    dyRangeSelector(height = 40) %>%
-    dyCrosshair(direction = "vertical") %>%
-    dyAxis("x",
+    ) %>% 
+    dygraphs::dyRangeSelector(height = 40) %>%
+    dygraphs::dyCrosshair(direction = "vertical") %>%
+    dygraphs::dyAxis("x",
            drawGrid = FALSE,
            gridLineColor = "#808080") %>%
-    dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
+    dygraphs::dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
   
 }
 ```
@@ -1680,8 +1687,6 @@ Gathers information available in BPstat about the dataset items.
 #' @export
 #' 
 ya_get_dataset_item <- function(lang = "EN"){
-  
-  lang <- "PT"
 
   check_language(lang)
   
@@ -1757,11 +1762,8 @@ ya_get_dataset_item <- function(lang = "EN"){
         
       }
 
-      # for (row in 1:nrow(temp_df)) {
-      for (row in 1:1) {
-        
-        
-        
+      for (row in 1:nrow(temp_df)) {
+
         tmp_dset_df <- rbind(tmp_dset_df,
                              generate_datasets(temp_df$datasets_href[[row]]))
         

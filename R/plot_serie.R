@@ -25,6 +25,13 @@
 #' @importFrom jsonlite read_json
 #' @importFrom xts xts
 #' @importFrom dygraphs dygraph
+#' @importFrom dygraphs dyOptions
+#' @importFrom dygraphs dyRangeSelector
+#' @importFrom dygraphs dyCrosshair
+#' @importFrom dygraphs dyAxis
+#' @importFrom dygraphs dyAxis
+#' 
+#'  
 #' 
 #' @return A plot with the data gather from BPstat from the designated serie, chosen by the user
 #' 
@@ -36,7 +43,7 @@
 #' plot_serie()
 #' }
 plot_serie <- function(id, lng){
-  
+
   basepath <- "https://bpstat.bportugal.pt"
   
   # todos os valores da s\u00e9rie selecionada
@@ -56,7 +63,7 @@ plot_serie <- function(id, lng){
   st_c <- httr2::resp_status(response)
   
   status_description <-
-    check_status_code(st_c, lang)
+    check_status_code(st_c, lng)
   
   if (dplyr::between(st_c, 300, 550)) {
     stp_msg <- paste0("Estado :",
@@ -93,18 +100,18 @@ plot_serie <- function(id, lng){
   
   
   dygraphs::dygraph(dados, main = titulo) %>%
-    dyOptions(
+    dygraphs::dyOptions(
       labelsUTC = TRUE,
       drawGrid = TRUE,
       colors = "#8F733C",
       drawPoints = TRUE,
       pointSize = 2
-    ) %>%
-    dyRangeSelector(height = 40) %>%
-    dyCrosshair(direction = "vertical") %>%
-    dyAxis("x",
+    ) %>% 
+    dygraphs::dyRangeSelector(height = 40) %>%
+    dygraphs::dyCrosshair(direction = "vertical") %>%
+    dygraphs::dyAxis("x",
            drawGrid = FALSE,
            gridLineColor = "#808080") %>%
-    dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
+    dygraphs::dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
   
 }

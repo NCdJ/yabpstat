@@ -99,7 +99,7 @@ This is an helper function useful to check any errors from BPstat API using the 
 
 ```{r example-check_api_version, eval = FALSE}
 #' \dontrun{
-#' check_api_version()
+#'check_api_version()
 #' }
 ```
 

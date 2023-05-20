@@ -30,8 +30,6 @@
 #' #'ya_get_dataset_item()
 #' #'}
 ya_get_dataset_item <- function(lang = "EN"){
-  
-  lang <- "PT"
 
   check_language(lang)
   
@@ -107,11 +105,8 @@ ya_get_dataset_item <- function(lang = "EN"){
         
       }
 
-      # for (row in 1:nrow(temp_df)) {
-      for (row in 1:1) {
-        
-        
-        
+      for (row in 1:nrow(temp_df)) {
+
         tmp_dset_df <- rbind(tmp_dset_df,
                              generate_datasets(temp_df$datasets_href[[row]]))
         
