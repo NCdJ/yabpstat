@@ -6,4 +6,3 @@
 #'  expect_true(inherits(ya_search, "function")) 
 #'})
 #'}
-#'

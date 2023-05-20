@@ -24,6 +24,8 @@ Description: this function allows user to add, delete and view favourite series 
 }
 \examples{
 #'\dontrun{
+#'
 ya_my_favourites()
+
 }
 }

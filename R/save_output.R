@@ -16,7 +16,6 @@
 #' @examples
 #' #'\dontrun{
 #' save_output()
-#' #'
 #' #'}
 
 save_output <- function(r_object, file_directory = "raw", file_name, extension = "rds"){

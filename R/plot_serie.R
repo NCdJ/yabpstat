@@ -35,7 +35,6 @@
 #' #'\dontrun{
 #' plot_serie()
 #' }
-#' 
 plot_serie <- function(id, lng){
   
   basepath <- "https://bpstat.bportugal.pt"

@@ -98,6 +98,9 @@ gitlabr::use_gitlab_ci(type = "check-coverage-pkgdown")
 # Simulate package installation
 pkgload::load_all()
 
+# desinstalação do package
+devtools::unload("yabpstat")
+
 # Generate documentation and deal with dependencies
 attachment::att_amend_desc()
 

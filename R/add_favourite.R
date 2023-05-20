@@ -30,16 +30,16 @@ add_favourite <- function(id, dataset){
   url <- paste0(basepath_url,
            "/api/series/?view_full=true&series_ids=",
            id)
-  
+
   if (!is.numeric(id)) {
     stop("Wrong data type in \"series_id\" input.")
-    
+
   }  
-  
+
   response <- httr2::request(url) %>% 
     httr2::req_user_agent("YABPstat package") %>% 
     httr2::req_perform()
-  
+
   st_c <- httr2::resp_status(response)
   
   status_description <-

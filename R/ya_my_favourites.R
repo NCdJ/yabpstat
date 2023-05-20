@@ -2,16 +2,16 @@
 
 #'
 #' Title: ya_my_favourites()
-#'
+#' 
 #' Description: this function allows user to add, delete and view favourite series from BPStat
-#'
+#' 
 #' @param series_id A serie ID from BPstat. Defaults to 0 (zero)
 #' @param operation A string with the length of 1 (one), representing the following operations:
 #'                      A - add
 #'                      D - delete
 #'                      V - view
 #' @param lang  A string that represents the languages supported by BPstat API. Currently only uses "PT" or "EN". Defaults to "EN"
-#'
+#' 
 #' @importFrom httr2 request
 #' @importFrom httr2 req_user_agent
 #' @importFrom httr2 req_perform
@@ -21,106 +21,109 @@
 #' @importFrom dplyr between
 #' @importFrom dplyr %>%
 #' @importFrom DT datatable
-#'
+#' 
 #' @return A file named «ya_favourites» with user favourite series
-#'
+#' 
 #' @export
-#'
+#' 
 #' @examples
 #' #'\dontrun{
+#' #'
 #' ya_my_favourites()
+#' 
 #' }
 ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
-
+  
   check_language(lang)
-
-  favourites <- readRDS(file = "ya_favourites.rds")
-
+  
+  favourites <- readRDS(file = "data/ya_favourites.rds")
+  
+  
   if (!(operation %in% c("A", "a", "D", "d", "V", "v"))) {
     stop(
       "Wrong type of operation. \nPlease choose between \"A\" - add, \"D\" - delete and \"V\" - view."
     )
   }
-
+  
   if ((operation == "A" |
        operation == "a") & !(series_id == 0)) {
     add_favourite(id = series_id, dataset = favourites)
-
+    
   } else if (operation == "D" |
              operation == "d" & !(series_id == 0)) {
     delete_favourite(id = series_id, dataset = favourites)
-
+    
   } else if ((operation == "V" |
               operation == "v") & (series_id == 0)) {
     basepath <-
       "https://bpstat.bportugal.pt/data/v1/series/?lang="
-
+    
     vec_favourites <-
       paste(apply(favourites, 1, function(x)
         paste(x, collapse = ",")), collapse = ",")
-
+    
     url_favourites <- paste0(basepath,
                              toupper(lang),
                              "&series_ids=",
                              vec_favourites)
-
+    
     if (nchar(url_favourites) > 2048) {
       stop("The URL is limited to 2048 characters. Too many favourites stored.")
     }
-
+    
     tryCatch({
       df_favourites <- dplyr::tibble()
-
+      
       response <- httr2::request(url_favourites) %>%
         httr2::req_user_agent("YABPstat package") %>%
         httr2::req_perform()
-
+      
       content <- response %>%
         httr2::resp_body_json()
-
+      
       st_c <-
         httr2::resp_status(response)
-
+      
       status_description <-
         check_status_code(st_c, lang)
-
+      
       if (dplyr::between(st_c, 300, 550)) {
         stp_msg <- paste0("Estado :",
                           st_c,
                           " - ",
                           status_description,
                           ".")
-
+        
         stop(stp_msg)
-
-
+        
+        
       } else {
         for (number in 1:nrow(favourites)) {
           id <- content[[number]][["id"]]
-
+          
           descricao <-
             content[[number]][["description"]]
-
+          
           etiqueta <-
             content[[number]][["label"]]
-
+          
           abreviatura <-
             content[[number]][["short_label"]]
-
+          
           atualizacao <-
             content[[number]][["obs_updated_at"]]
-
+          
           new_row <- dplyr::tibble(id,
                                    descricao,
                                    etiqueta,
                                    abreviatura,
                                    atualizacao)
-
+          
           df_favourites <-
             rbind(df_favourites, new_row)
-
+          
         }
-
+        
         if (lang == "EN" | lang == "en") {
           column_names <-
             c("ID",
@@ -128,12 +131,12 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
               "Label",
               "Short label",
               "Updated at")
-
+          
           capt <- "YABPstat: My favourite series"
-
+          
           translate_to <-
             "//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json"
-
+          
         } else {
           column_names <-
             c(
@@ -143,15 +146,15 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
               "Abreviatura",
               "Atualiza\u00e7\u00e3o em"
             )
-
+          
           capt <-
             "YABPstat: As minhas s\u00e9ries favoritas"
-
+          
           translate_to <-
             "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
-
+          
         }
-
+        
         DT::datatable(
           data = df_favourites,
           style = "auto",
@@ -180,25 +183,25 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
           )
         )
       }
-
+      
     }, error = function(e) {
       if (lang == "EN" || lang == "en") {
       err_msg <- paste0("Error: ",
                         "\n",
                         "Something went wrong. Please contact the maintainer.")
-
+      
     } else {
       err_msg <- paste0("Erro: ",
                         "\n",
                         "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
-
+      
     }
     stop(err_msg)
-
+      
     })
-
+    
   } else {
     stop("Please check your arguments. There's something wrong.")
-  }
-
+  }  
+     
 }

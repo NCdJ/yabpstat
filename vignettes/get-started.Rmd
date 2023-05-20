@@ -56,7 +56,7 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 
 # Check language
 
-This is an helper function useful to check user input language to use in YABPstat calls do BPstat API.
+This is an helper function useful to check user input language usedd in YABPstat calls do BPstat API.
     
 
   
@@ -78,9 +78,7 @@ This is an helper function useful to check any connection errors to BPstat API u
 
 ```{r example-check_status_code}
 #' \dontrun{
-#' 
 #'check_status_code(200)
-#'
 #' }
 ```
 
@@ -167,7 +165,6 @@ This is an helper function that allows to save R objects created by YABPstat fun
 ```{r example-save_output}
 #'\dontrun{
 #' save_output()
-#'
 #'}
 ```
 
@@ -189,7 +186,6 @@ This is an helper function that plots a graph representing a BPstat serie ID cho
 #'\dontrun{
 #' plot_serie()
 #' }
-#' 
 ```
 
   
@@ -498,7 +494,9 @@ This function allows user management of favourite series ID from BPstat.
 
 ```{r example-ya_my_favourites}
 #'\dontrun{
+#'
 #' ya_my_favourites()
+#' 
 #' }
 ```
 

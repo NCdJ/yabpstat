@@ -44,7 +44,8 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 #'
 #' data in top_level.
 #'
-#' @format A data frame with 63 rows and 3 variables representing the available status codes in Portuguese and English languages:
+#' @format ## "ya_status_codes"
+#' A data frame with 63 rows and 3 variables representing the available status codes in Portuguese and English languages:
 #' \describe{
 #'   \item{ status_code }{  character }
 #'   \item{ description_en }{  character }
@@ -52,6 +53,7 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 #' }
 #' @source https://developer.mozilla.org/en-US/docs/Web/HTTP/Status & https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status.
 #' 
+#' data(ya_status_codes)
 #' "ya_status_codes"
 
 ```
@@ -62,20 +64,22 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 #'
 #' data in top_level.
 #'
-#' @format A data frame with 15 rows and 1 variable, choosen from BPstat observations carousel, representing the user's favourite series ID from BPstat:
+#' @format ## "ya_favourites"
+#' A data frame with 15 rows and 1 variable, choosen from BPstat observations carousel, representing the user's favourite series ID from BPstat:
 #' \describe{
 #'   \item{ series_id }{  numeric }
 #' }
 #' @source YABPstat
 #' 
-#'"ya_favourites" 
+#' data(ya_favourites)
+#' "ya_favourites"
 
 ```
 
 
 # Check language
 
-This is an helper function useful to check user input language to use in YABPstat calls do BPstat API.
+This is an helper function useful to check user input language usedd in YABPstat calls do BPstat API.
     
 ```{r function-check_language}
 #' Title: check_language()
@@ -140,10 +144,10 @@ This is an helper function useful to check any connection errors to BPstat API u
 #' @noRd
 #' 
 check_status_code <- function(st_code, lang = "EN") {
-  
+
   check_language(lang)
   
-  stat_codes <- readRDS(file = "ya_status_codes.rds")
+  stat_codes <- readRDS("data/ya_status_codes.rds")
   
   stat_codes <- stat_codes %>%
       dplyr::filter(status_code == st_code)
@@ -173,18 +177,16 @@ check_status_code <- function(st_code, lang = "EN") {
   
 ```{r example-check_status_code}
 #' \dontrun{
-#' 
 #'check_status_code(200)
-#'
 #' }
 ```
   
 ```{r tests-check_status_code}
 
-#' Test with your dataset in "datasets/"
+#' Test with your dataset in "data/"
 #' 
 #'\dontrun{
-# datafile <- "ya_status_codes.rds"
+# datafile <- "data/ya_status_codes.rds"
 # 
 # if(!file.exists(datafile)){
 #   
@@ -486,7 +488,6 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
 ```{r example-save_output}
 #'\dontrun{
 #' save_output()
-#'
 #'}
 ```
   
@@ -615,7 +616,6 @@ plot_serie <- function(id, lng){
 #'\dontrun{
 #' plot_serie()
 #' }
-#' 
 ```
   
 ```{r tests-plot_serie}
@@ -2916,6 +2916,10 @@ This function allows to search BPstat through the API. The number of results are
 #' 
 ya_search <- function(query, lang = "EN"){
   
+  query <- "ihpc"
+  
+  lang <- "PT"
+  
   check_language(lang)
   
   page_size <- 50
@@ -3126,7 +3130,6 @@ ya_search <- function(query, lang = "EN"){
 #'  expect_true(inherits(ya_search, "function")) 
 #'})
 #'}
-#'
 ```
   
 
@@ -3166,7 +3169,6 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   check_language(lang)
   
-  lang <- "EN"
   favourites <- readRDS(file = "data/ya_favourites.rds")
   
   
@@ -3340,7 +3342,9 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
 ```{r example-ya_my_favourites}
 #'\dontrun{
+#'
 #' ya_my_favourites()
+#' 
 #' }
 ```
   
