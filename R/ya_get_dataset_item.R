@@ -11,7 +11,7 @@
 #' @importFrom httr2 req_user_agent
 #' @importFrom httr2 req_perform
 #' @importFrom httr2 resp_status
-#' @importFrom httr2 req_body_raw
+#' @importFrom httr2 resp_body_raw
 #' @importFrom dplyr between
 #' @importFrom dplyr select
 #' @importFrom dplyr tibble
@@ -66,7 +66,7 @@ ya_get_dataset_item <- function(lang = "EN"){
       
     } else {
       
-      raw_response <- httr2::req_body_raw(response)
+      raw_response <- httr2::resp_body_raw(response)
       
       temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
       

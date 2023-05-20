@@ -44,8 +44,6 @@ ya_get_domain <- function(lang = "EN"){
   
   check_language(lang)
   
-  lang <- "PT"
-  
   temp_df <- dplyr::tibble()
   
   basepath_url <- "https://bpstat.bportugal.pt"

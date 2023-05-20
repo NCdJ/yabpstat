@@ -34,10 +34,6 @@
 #' 
 ya_search <- function(query, lang = "EN"){
   
-  query <- "ihpc"
-  
-  lang <- "PT"
-  
   check_language(lang)
   
   page_size <- 50

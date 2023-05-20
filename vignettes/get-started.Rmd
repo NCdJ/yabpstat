@@ -56,15 +56,13 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 
 # Check language
 
-This is an helper function useful to check user input language usedd in YABPstat calls do BPstat API.
+This is an helper function useful to check user input language used in YABPstat calls do BPstat API.
     
 
-  
-
 ```{r example-check_language, eval = FALSE}
-
- check_language(lang = "PT")
-
+#' \dontrun{
+#' check_language(lang = "PT")
+#' }
 ```
 
   
@@ -72,7 +70,6 @@ This is an helper function useful to check user input language usedd in YABPstat
 # Check Status Code
 
 This is an helper function useful to check any connection errors to BPstat API using the YABPstat package.
-    
 
   
 

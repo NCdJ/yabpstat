@@ -12,7 +12,7 @@
 #' @importFrom httr2 req_user_agent
 #' @importFrom httr2 req_perform
 #' @importFrom httr2 resp_status
-#' @importFrom httr2 req_body_raw
+#' @importFrom httr2 resp_body_raw
 #' @importFrom dplyr between
 #' @importFrom dplyr tibble
 #' @importFrom dplyr %>%
@@ -63,7 +63,7 @@ ya_save_dimension_description <- function(lang = "EN", extension = "rds"){
     
   } else {
     raw_response <- response %>% 
-      httr2::req_body_raw()
+      httr2::resp_body_raw()
     
     temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
     
@@ -88,7 +88,7 @@ ya_save_dimension_description <- function(lang = "EN", extension = "rds"){
           httr2::req_user_agent("YABPstat package") %>% 
           httr2::req_perform()
         
-        raw_get_description <- httr2::req_body_raw(get_description)
+        raw_get_description <- httr2::resp_body_raw(get_description)
         
         contents <-
           jsonlite::fromJSON(rawToChar(raw_get_description))

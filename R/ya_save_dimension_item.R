@@ -63,7 +63,7 @@ ya_save_dimension_item <- function(lang = "EN", extension = "rds"){
     
     
   } else {
-    raw_response <- httr2::req_body_raw(response)
+    raw_response <- httr2::resp_body_raw(response)
     
     temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
     

@@ -36,7 +36,7 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   check_language(lang)
   
-  fich <- system.file("ya_status_codes.rds",package = "yabpstat", mustWork = TRUE)
+  fich <- system.file("ya_favourites.rds",package = "yabpstat", mustWork = TRUE)
   
   favourites <- readRDS(file = fich)
   

@@ -11,9 +11,9 @@
 #' @noRd
 #' 
 #' @examples
-#' 
-#'  check_language(lang = "PT")
-#' 
+#' \dontrun{
+#' check_language(lang = "PT")
+#' }
 check_language <- function(lang) {
   if (!(lang %in% c("EN", "en", "PT", "pt"))) {
     err_msg_lang <- paste0(
