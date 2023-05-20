@@ -34,8 +34,6 @@
 #' #'}
 ya_get_dimension_description <- function(lang = "EN"){
   
-  lang <- "EN"
-  
   check_language(lang)
   
   tmp_dset_df <- dplyr::tibble()

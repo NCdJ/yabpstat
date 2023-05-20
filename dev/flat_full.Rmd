@@ -2512,8 +2512,6 @@ Gathers information avaliable in BPstat about the dimension items and descriptio
 #' 
 ya_get_dimension_description <- function(lang = "EN"){
   
-  lang <- "EN"
-  
   check_language(lang)
   
   tmp_dset_df <- dplyr::tibble()
