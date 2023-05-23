@@ -89,124 +89,10 @@
 If it is the first time you use {fusen}, after 'description', you can directly run the last chunk of the present file with inflate() inside.
 -->
 <div class="section level2">
-<h2 id="check-language">Check language<a class="anchor" aria-label="anchor" href="#check-language"></a>
-</h2>
-<p>This is an helper function useful to check user input language usedd
-in YABPstat calls do BPstat API.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="co">#' check_language(lang = "PT")</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="check-status-code">Check Status Code<a class="anchor" aria-label="anchor" href="#check-status-code"></a>
-</h2>
-<p>This is an helper function useful to check any connection errors to
-BPstat API using the YABPstat package.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="co">#'check_status_code(200)</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="check-bpstat-api-version">Check BPstat API version<a class="anchor" aria-label="anchor" href="#check-bpstat-api-version"></a>
-</h2>
-<p>This is an helper function useful to check any errors from BPstat API
-using the YABPstat package due to a different version been deployed
-without previous warning to the developers.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="co">#'check_api_version()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="check-extension">Check extension<a class="anchor" aria-label="anchor" href="#check-extension"></a>
-</h2>
-<p>This is an helper function that checks if a user is saving an rds or
-csv from any of the YABPstat package save output functions</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="co">#' check_extension()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="generate-datasets">Generate datasets<a class="anchor" aria-label="anchor" href="#generate-datasets"></a>
-</h2>
-<p>This is an helper function that, given an href from a BPstat dataset,
-it returns a dataframe with information associated with that specific
-dataset.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="co">#' generate_datasets()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="generate-dimensions">Generate dimensions<a class="anchor" aria-label="anchor" href="#generate-dimensions"></a>
-</h2>
-<p>This is an helper function that, given an href from a BPstat
-dimension, it returns a dataframe with information associated with that
-specific dimension.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#' \dontrun{</span></span>
-<span><span class="co">#' generate_dimensions()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="save-output">Save output<a class="anchor" aria-label="anchor" href="#save-output"></a>
-</h2>
-<p>This is an helper function that allows to save R objects created by
-YABPstat functions in user’s folder location.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
-<span><span class="co">#' save_output()</span></span>
-<span><span class="co">#'}</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="plot-serie">Plot serie<a class="anchor" aria-label="anchor" href="#plot-serie"></a>
-</h2>
-<p>This is an helper function that plots a graph representing a BPstat
-serie ID chosen by the user.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co">#'\dontrun{</span></span>
-<span><span class="co">#' plot_serie()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="data-serie">Data serie<a class="anchor" aria-label="anchor" href="#data-serie"></a>
-</h2>
-<p>This is an helper function that shows a table with data from a BPstat
-serie ID chosen by the user.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
-<span><span class="co">#' data_serie()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="add-favourite">Add favourite<a class="anchor" aria-label="anchor" href="#add-favourite"></a>
-</h2>
-<p>This is an helper function that add new series to user
-favourites.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
-<span><span class="co">#' add_favourite()</span></span>
-<span><span class="co">#' }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="delete-favourite">Delete favourite<a class="anchor" aria-label="anchor" href="#delete-favourite"></a>
-</h2>
-<p>This is an helper function that deletes a serie from user
-favourites.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
-<span><span class="co">#'delete_favourite()</span></span>
-<span><span class="co">#'}</span></span></code></pre></div>
-</div>
-<div class="section level2">
 <h2 id="ya_api_info">ya_api_info()<a class="anchor" aria-label="anchor" href="#ya_api_info"></a>
 </h2>
 <p>Shows useful informations about BPstat API.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_api_info()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -216,7 +102,7 @@ favourites.</p>
 </h2>
 <p>This function gathers information about BPstat domains located at “<a href="https://bpstat.bportugal.pt/data/v1/domains/?lang=PT" class="external-link uri">https://bpstat.bportugal.pt/data/v1/domains/?lang=PT</a>” or
 “<a href="https://bpstat.bportugal.pt/data/v1/domains/?lang=EN" class="external-link uri">https://bpstat.bportugal.pt/data/v1/domains/?lang=EN</a>”</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_get_domain()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -227,7 +113,7 @@ favourites.</p>
 </h2>
 <p>This function allows saving the information about BPstat domains to
 an external file.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_save_domain()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -237,7 +123,7 @@ an external file.</p>
 </h2>
 <p>This function gathers information about BPstat domains located at “<a href="https://bpstat.bportugal.pt/data/v1/domains/%7Bdomain_id%7D/datasets/?lang=PT&amp;page_size=100" class="external-link uri">https://bpstat.bportugal.pt/data/v1/domains/{domain_id}/datasets/?lang=PT&amp;page_size=100</a>”
 or “<a href="https://bpstat.bportugal.pt/data/v1/domains/%7Bdomain_id%7D/datasets/?lang=EN&amp;page_size=100" class="external-link uri">https://bpstat.bportugal.pt/data/v1/domains/{domain_id}/datasets/?lang=EN&amp;page_size=100</a>”</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_get_dataset()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -247,7 +133,7 @@ or “<a href="https://bpstat.bportugal.pt/data/v1/domains/%7Bdomain_id%7D/datas
 </h2>
 <p>This function allows saving the information about BPstat datasets to
 an external file.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_save_dataset()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -256,7 +142,7 @@ an external file.</p>
 <h2 id="ya_get_dataset_item">ya_get_dataset_item()<a class="anchor" aria-label="anchor" href="#ya_get_dataset_item"></a>
 </h2>
 <p>Gathers information available in BPstat about the dataset items.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_get_dataset_item()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -266,7 +152,7 @@ an external file.</p>
 </h2>
 <p>This function allows saving the information about BPstat datasets
 items to an external file.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_save_dataset_item()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -276,7 +162,7 @@ items to an external file.</p>
 </h2>
 <p>This function gathers information about BPstat domains located at “<a href="https://bpstat.bportugal.pt/data/v1/domains/?lang=" class="external-link uri">https://bpstat.bportugal.pt/data/v1/domains/?lang=</a>” [PT
 || EN]</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_get_dimension()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -286,7 +172,7 @@ items to an external file.</p>
 </h2>
 <p>This function allows saving the information about BPstat dimensions
 to an external file.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_save_dimension()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -296,7 +182,7 @@ to an external file.</p>
 </h2>
 <p>Gathers information avaliable in BPstat about the dimension
 items.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_get_dimension_item()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -306,7 +192,7 @@ items.</p>
 </h2>
 <p>This function allows saving the information about BPstat dimensions
 items to an external file.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_save_dimension_item()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -316,7 +202,7 @@ items to an external file.</p>
 </h2>
 <p>Gathers information avaliable in BPstat about the dimension items and
 description.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_get_dimension_description()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -326,7 +212,7 @@ description.</p>
 </h2>
 <p>This function allows saving the information about description of
 BPstat dimensions to an external file.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_save_dimension_description()</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -336,7 +222,7 @@ BPstat dimensions to an external file.</p>
 </h2>
 <p>This function allows to search BPstat through the API. The number of
 results are limited to 200.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_search(query="ihpc")</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
@@ -346,7 +232,7 @@ results are limited to 200.</p>
 </h2>
 <p>This function allows user management of favourite series ID from
 BPstat.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' ya_my_favourites()</span></span>
@@ -358,7 +244,7 @@ BPstat.</p>
 </h2>
 <p>This function allows to user to plot, see in a table or reuse in
 other context, data from a determined BPstat serie ID.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#'\dontrun{</span></span>
 <span><span class="co">#'ya_info_serie(series_id = 12528985)</span></span>
 <span><span class="co">#'}</span></span></code></pre></div>
