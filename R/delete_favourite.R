@@ -19,10 +19,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' #'\dontrun{
-#' #'delete_favourite()
-#' #'}
 delete_favourite <- function(id, dataset){
   
   basepath_url <- "https://bpstat.bportugal.pt"

@@ -48,12 +48,12 @@ ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
        operation == "p") & !(series_id == 0)) {
     plot_serie(id = series_id, lng = lang)
     
-  } else if (operation == "T" |
-             operation == "t" & !(series_id == 0)) {
+  } else if ((operation == "T" |
+             operation == "t") & !(series_id == 0)) {
     data_serie(id = series_id, lng = lang)
     
-  } else if (operation == "Df" |
-             operation == "df" & !(series_id == 0)) {
+  } else if ((operation == "Df" |
+             operation == "df") & !(series_id == 0)) {
     df_data <- dplyr::tibble()
     
     basepath <- "https://bpstat.bportugal.pt"

@@ -15,10 +15,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' \dontrun{
-#' #'check_status_code(200)
-#' }
 check_status_code <- function(st_code, lang = "EN") {
 
   check_language(lang)

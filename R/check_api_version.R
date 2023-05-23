@@ -11,10 +11,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' \dontrun{
-#' #'check_api_version()
-#' }
 check_api_version <- function(bpstat_api_version) {
   if (bpstat_api_version[[2]][[3]] == "v1") {
     return("v1")

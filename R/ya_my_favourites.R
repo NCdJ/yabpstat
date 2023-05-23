@@ -51,8 +51,8 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
        operation == "a") & !(series_id == 0)) {
     add_favourite(id = series_id, dataset = favourites)
     
-  } else if (operation == "D" |
-             operation == "d" & !(series_id == 0)) {
+  } else if ((operation == "D" |
+             operation == "d") & !(series_id == 0)) {
     delete_favourite(id = series_id, dataset = favourites)
     
   } else if ((operation == "V" |

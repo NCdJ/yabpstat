@@ -10,10 +10,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' \dontrun{
-#' check_extension()
-#' }
 check_extension <- function(extension) {
   if (!(extension %in% c("RDS", "rds", "csv", "CSV"))) {
     err_msg_extension <- paste0(

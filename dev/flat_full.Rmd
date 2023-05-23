@@ -77,10 +77,7 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 ```
 
 
-# Check language
 
-This is an helper function useful to check user input language usedd in YABPstat calls do BPstat API.
-    
 ```{r function-check_language}
 #' Title: check_language()
 #' 
@@ -106,11 +103,7 @@ check_language <- function(lang) {
 
 ```
   
-```{r example-check_language, eval = FALSE}
-#' \dontrun{
-#' check_language(lang = "PT")
-#' }
-```
+
   
 ```{r tests-check_language, eval = FALSE}
 #' \dontrun{
@@ -123,10 +116,7 @@ check_language <- function(lang) {
 
 
 
-# Check Status Code
 
-This is an helper function useful to check any connection errors to BPstat API using the YABPstat package.
-    
 ```{r function-check_status_code}
 #' Title: check_status_code()
 #' 
@@ -176,12 +166,7 @@ check_status_code <- function(st_code, lang = "EN") {
 }
 
 ```
-  
-```{r example-check_status_code}
-#' \dontrun{
-#'check_status_code(200)
-#' }
-```
+
   
 ```{r tests-check_status_code}
 
@@ -207,13 +192,6 @@ check_status_code <- function(st_code, lang = "EN") {
 ```
   
 
-
-
-
-# Check BPstat API version
-
-This is an helper function useful to check any errors from BPstat API using the YABPstat package due to a different version been deployed without previous warning to the developers. 
-    
 ```{r function-check_api_version}
 
 #' Title: check_api_version()
@@ -236,11 +214,7 @@ check_api_version <- function(bpstat_api_version) {
 }
 ```
   
-```{r example-check_api_version, eval = FALSE}
-#' \dontrun{
-#'check_api_version()
-#' }
-```
+
   
 ```{r tests-check_api_version, eval = FALSE}
 #' \dontrun{
@@ -252,10 +226,6 @@ check_api_version <- function(bpstat_api_version) {
   
 
 
-
-# Check extension
-
-This is an helper function that checks if a user is saving an rds or csv from any of the YABPstat package save output functions
     
 ```{r function-check_extension}
 #' Title: check_extension
@@ -282,11 +252,7 @@ check_extension <- function(extension) {
 
 ```
   
-```{r example-check_extension}
-#' \dontrun{
-#' check_extension()
-#' }
-```
+
   
 ```{r tests-check_extension}
 #' \dontrun{
@@ -298,10 +264,7 @@ check_extension <- function(extension) {
 ```
 
 
-# Generate datasets
 
-This is an helper function that, given an href from a BPstat dataset, it returns a dataframe with information associated with that specific dataset.
-    
 ```{r function-generate_datasets}
 #' Title: generate_datasets()
 #' 
@@ -346,12 +309,7 @@ generate_datasets <- function(dataset_href){
   
 }
 ```
-  
-```{r example-generate_datasets}
-#' \dontrun{
-#' generate_datasets()
-#' }
-```
+
   
 ```{r tests-generate_datasets}
 #' \dontrun{
@@ -361,11 +319,6 @@ generate_datasets <- function(dataset_href){
 #'}
 ```
 
-
-
-# Generate dimensions
-
-This is an helper function that, given an href from a BPstat dimension, it returns a dataframe with information associated with that specific dimension.
     
 ```{r function-generate_dimensions}
 
@@ -416,12 +369,7 @@ generate_dimensions <- function(dimensions_href){
 }
 
 ```
-  
-```{r example-generate_dimensions}
-#' \dontrun{
-#' generate_dimensions()
-#' }
-```
+
   
 ```{r tests-generate_dimensions}
 #' \dontrun{
@@ -432,9 +380,6 @@ generate_dimensions <- function(dimensions_href){
 ```
 
 
-# Save output
-
-This is an helper function that allows to save R objects created by YABPstat functions in user's folder location.
     
 ```{r function-save_output}
 #'
@@ -488,11 +433,7 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
 }
 ```
   
-```{r example-save_output}
-#'\dontrun{
-#' save_output()
-#'}
-```
+
   
 ```{r tests-save_output}
 #'\dontrun{}
@@ -503,10 +444,6 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
 ```
   
 
-
-# Plot serie
-
-This is an helper function that plots a graph representing a BPstat serie ID chosen by the user.
     
 ```{r function-plot_serie}
 #'
@@ -618,13 +555,7 @@ plot_serie <- function(id, lng){
   
 }
 ```
-  
-```{r example-plot_serie}
 
-#'\dontrun{
-#' plot_serie()
-#' }
-```
   
 ```{r tests-plot_serie}
 
@@ -635,9 +566,6 @@ plot_serie <- function(id, lng){
 #' }
 ```
   
-# Data serie
-    
-This is an helper function that shows a table with data from a BPstat serie ID chosen by the user.
 
 ```{r function-data_serie}
 
@@ -769,11 +697,7 @@ data_serie <- function(id, lng){
 }
 ```
   
-```{r example-data_serie}
-#'\dontrun{
-#' data_serie()
-#' }
-```
+
   
 ```{r tests-data_serie}
 #'\dontrun{
@@ -783,10 +707,7 @@ data_serie <- function(id, lng){
 #'  }
 ```
  
-# Add favourite
 
-This is an helper function that add new series to user favourites.
-    
 ```{r function-add_favourite}
 #'
 #' Title: add_favourite()
@@ -854,11 +775,7 @@ add_favourite <- function(id, dataset){
 }
 ```
   
-```{r example-add_favourite}
-#'\dontrun{
-#' add_favourite()
-#' }
-```
+
   
 ```{r tests-add_favourite}
 #'\dontrun{
@@ -869,10 +786,7 @@ add_favourite <- function(id, dataset){
 #'
 ```
   
-# Delete favourite
 
-This is an helper function that deletes a serie from user favourites.
-    
 ```{r function-delete_favourite}
 #'
 #' Title: delete_favourite
@@ -942,11 +856,7 @@ delete_favourite <- function(id, dataset){
 }
 ```
   
-```{r example-delete_favourite}
-#'\dontrun{
-#'delete_favourite()
-#'}
-```
+
   
 ```{r tests-delete_favourite}
 #'\dontrun{
@@ -3186,8 +3096,8 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
        operation == "a") & !(series_id == 0)) {
     add_favourite(id = series_id, dataset = favourites)
     
-  } else if (operation == "D" |
-             operation == "d" & !(series_id == 0)) {
+  } else if ((operation == "D" |
+             operation == "d") & !(series_id == 0)) {
     delete_favourite(id = series_id, dataset = favourites)
     
   } else if ((operation == "V" |
@@ -3409,12 +3319,12 @@ ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
        operation == "p") & !(series_id == 0)) {
     plot_serie(id = series_id, lng = lang)
     
-  } else if (operation == "T" |
-             operation == "t" & !(series_id == 0)) {
+  } else if ((operation == "T" |
+             operation == "t") & !(series_id == 0)) {
     data_serie(id = series_id, lng = lang)
     
-  } else if (operation == "Df" |
-             operation == "df" & !(series_id == 0)) {
+  } else if ((operation == "Df" |
+             operation == "df") & !(series_id == 0)) {
     df_data <- dplyr::tibble()
     
     basepath <- "https://bpstat.bportugal.pt"
@@ -3483,4 +3393,3 @@ ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
 # })
 #'}
 ```
-  

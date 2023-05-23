@@ -19,10 +19,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' #'\dontrun{
-#' add_favourite()
-#' }
 add_favourite <- function(id, dataset){
   
   basepath_url <- "https://bpstat.bportugal.pt"

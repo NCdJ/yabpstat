@@ -19,10 +19,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' \dontrun{
-#' generate_dimensions()
-#' }
 generate_dimensions <- function(dimensions_href){
   
   max_datasets <- 100

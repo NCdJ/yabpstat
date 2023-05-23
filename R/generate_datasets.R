@@ -16,10 +16,6 @@
 #' 
 #' @noRd
 #' 
-#' @examples
-#' \dontrun{
-#' generate_datasets()
-#' }
 generate_datasets <- function(dataset_href){
 
   max_datasets <- 100
