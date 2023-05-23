@@ -28,10 +28,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_search(query="ihpc")
-#' #'}
-#' 
+#' ya_search(query="ihpc")
 ya_search <- function(query, lang = "EN"){
   
   check_language(lang)
@@ -226,5 +223,4 @@ ya_search <- function(query, lang = "EN"){
     })
   }
 }
-
 

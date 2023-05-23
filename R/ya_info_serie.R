@@ -31,9 +31,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_info_serie(series_id = 12528985)
-#' #'}
+#' ya_info_serie(series_id = 12528985)
 ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
   
   check_language(lang)

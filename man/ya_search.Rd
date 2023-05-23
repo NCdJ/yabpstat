@@ -18,8 +18,5 @@ A data table with the query results from BPstat.
 Description: This is a function that allows to the user search directly de BPstat data through the API.
 }
 \examples{
-#'\dontrun{
-#'ya_search(query="ihpc")
-#'}
-
+ya_search(query="ihpc")
 }

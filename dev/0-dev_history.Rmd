@@ -116,6 +116,7 @@ fusen::add_flat_template("add")
 ```{r}
 # set and try pkgdown documentation website locally
 usethis::use_pkgdown()
+
 pkgdown::build_site()
 
 # build the tar.gz with vignettes to share with others

@@ -56,6 +56,67 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 
   
 
+  
+
+  
+
+  
+
+
+  
+
+  
+
+  
+
+
+    
+
+  
+
+  
+
+  
+
+    
+
+  
+
+    
+
+  
+
+  
+
+  
+
+    
+
+  
+
+  
+
+
+  
+
+  
+
+ 
+
+
+  
+
+  
+
+  
+
+
+  
+
+  
+
+   
+
 
 # ya_api_info()
 
@@ -65,9 +126,7 @@ Shows useful informations about BPstat API.
   
 
 ```{r example-ya_api_info}
-#'\dontrun{
-#'ya_api_info()
-#'}
+ya_api_info()
 ```
 
   
@@ -80,16 +139,13 @@ This function gathers information about BPstat domains located at "https://bpsta
   
 
 ```{r example-ya_get_domain}
-#'\dontrun{
-#'ya_get_domain()
-#'}
+ya_get_domain()
 ```
 
   
 
   
-<br>
-<br>
+
 
 # ya_save_domain()
 
@@ -99,9 +155,7 @@ This function allows saving the information about BPstat domains to an external 
   
 
 ```{r example-ya_save_domain}
-#'\dontrun{
-#'ya_save_domain()
-#'}
+ya_save_domain()
 ```
 
   
@@ -117,9 +171,7 @@ This function gathers information about BPstat domains located at "https://bpsta
   
 
 ```{r example-ya_get_dataset}
-#'\dontrun{
-#'ya_get_dataset()
-#'}
+ya_get_dataset()
 ```
 
   
@@ -132,9 +184,7 @@ This function allows saving the information about BPstat datasets to an external
   
 
 ```{r example-ya_save_dataset}
-#'\dontrun{
-#'ya_save_dataset()
-#'}
+ya_save_dataset()
 ```
 
   
@@ -147,9 +197,7 @@ Gathers information available in BPstat about the dataset items.
   
 
 ```{r example-ya_get_dataset_item}
-#'\dontrun{
-#'ya_get_dataset_item()
-#'}
+ya_get_dataset_item()
 ```
 
   
@@ -165,9 +213,7 @@ This function allows saving the information about BPstat datasets items to an ex
   
 
 ```{r example-ya_save_dataset_item}
-#'\dontrun{
-#'ya_save_dataset_item()
-#'}
+ya_save_dataset_item()
 ```
 
   
@@ -183,9 +229,7 @@ This function gathers information about BPstat domains located at "https://bpsta
   
 
 ```{r example-ya_get_dimension}
-#'\dontrun{
-#'ya_get_dimension()
-#'}
+ya_get_dimension()
 ```
 
   
@@ -201,9 +245,7 @@ This function allows saving the information about BPstat dimensions to an extern
   
 
 ```{r example-ya_save_dimension}
-#'\dontrun{
-#'ya_save_dimension()
-#'}
+ya_save_dimension()
 ```
 
   
@@ -219,9 +261,7 @@ Gathers information avaliable in BPstat about the dimension items.
   
 
 ```{r example-ya_get_dimension_item}
-#'\dontrun{
-#'ya_get_dimension_item()
-#'}
+ya_get_dimension_item()
 ```
 
   
@@ -237,9 +277,7 @@ This function allows saving the information about BPstat dimensions items to an 
   
 
 ```{r example-ya_save_dimension_item}
-#'\dontrun{
-#'ya_save_dimension_item()
-#'}
+ya_save_dimension_item()
 ```
 
   
@@ -252,9 +290,7 @@ Gathers information avaliable in BPstat about the dimension items and descriptio
   
 
 ```{r example-ya_get_dimension_description}
-#'\dontrun{
-#'ya_get_dimension_description()
-#'}
+ya_get_dimension_description()
 ```
 
   
@@ -270,9 +306,7 @@ This function allows saving the information about description of BPstat dimensio
   
 
 ```{r example-ya_save_dimension_description}
-#'\dontrun{
-#'ya_save_dimension_description()
-#'}
+ya_save_dimension_description()
 ```
 
   
@@ -285,10 +319,7 @@ This function allows to search BPstat through the API. The number of results are
   
 
 ```{r example-ya_search}
-#'\dontrun{
-#'ya_search(query="ihpc")
-#'}
-
+ya_search(query="ihpc")
 ```
 
   
@@ -305,11 +336,7 @@ This function allows user management of favourite series ID from BPstat.
   
 
 ```{r example-ya_my_favourites}
-#'\dontrun{
-#'
-#' ya_my_favourites()
-#' 
-#' }
+ya_my_favourites()
 ```
 
   
@@ -324,9 +351,7 @@ This function allows to user to plot, see in a table or reuse in other context, 
   
 
 ```{r example-ya_info_serie}
-#'\dontrun{
-#'ya_info_serie(series_id = 12528985)
-#'}
+ya_info_serie(series_id = 12528985)
 ```
 
   

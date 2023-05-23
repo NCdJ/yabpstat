@@ -26,9 +26,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_get_dataset_item()
-#' #'}
+#' ya_get_dataset_item()
 ya_get_dataset_item <- function(lang = "EN"){
 
   check_language(lang)

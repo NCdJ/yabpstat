@@ -37,9 +37,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_get_domain()
-#' #'}
+#' ya_get_domain()
 ya_get_domain <- function(lang = "EN"){
   
   check_language(lang)

@@ -27,11 +27,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'
 #' ya_my_favourites()
-#' 
-#' }
 ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   check_language(lang)

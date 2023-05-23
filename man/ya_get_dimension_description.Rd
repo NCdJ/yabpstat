@@ -16,7 +16,5 @@ A DT datatable in RStudio viewer pane
 Description: A function that gathers information avaliable in BPstat about the dimension items and description. This function takes a little longer to execute.
 }
 \examples{
-#'\dontrun{
-#'ya_get_dimension_description()
-#'}
+ya_get_dimension_description()
 }

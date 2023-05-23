@@ -23,9 +23,5 @@ A file named «ya_favourites» with user favourite series
 Description: this function allows user to add, delete and view favourite series from BPStat
 }
 \examples{
-#'\dontrun{
-#'
 ya_my_favourites()
-
-}
 }

@@ -1015,9 +1015,7 @@ ya_api_info <- function(lang = "EN") {
 ```
   
 ```{r example-ya_api_info}
-#'\dontrun{
-#'ya_api_info()
-#'}
+ya_api_info()
 ```
   
 ```{r tests-ya_api_info}
@@ -1209,9 +1207,7 @@ ya_get_domain <- function(lang = "EN"){
 ```
   
 ```{r example-ya_get_domain}
-#'\dontrun{
-#'ya_get_domain()
-#'}
+ya_get_domain()
 ```
   
 ```{r tests-ya_get_domain}
@@ -1223,8 +1219,7 @@ ya_get_domain <- function(lang = "EN"){
 #}
 ```
   
-<br>
-<br>
+
 # ya_save_domain()
 
 This function allows saving the information about BPstat domains to an external file.
@@ -1302,9 +1297,7 @@ ya_save_domain <- function(lang = "EN", extension = "rds"){
 ```
   
 ```{r example-ya_save_domain}
-#'\dontrun{
-#'ya_save_domain()
-#'}
+ya_save_domain()
 ```
   
 ```{r tests-ya_save_domain}
@@ -1452,9 +1445,7 @@ ya_get_dataset <- function(lang = "EN"){
 ```
   
 ```{r example-ya_get_dataset}
-#'\dontrun{
-#'ya_get_dataset()
-#'}
+ya_get_dataset()
 ```
   
 ```{r tests-ya_get_dataset}
@@ -1549,9 +1540,7 @@ ya_save_dataset <- function(lang = "EN", extension = "rds"){
 ```
   
 ```{r example-ya_save_dataset}
-#'\dontrun{
-#'ya_save_dataset()
-#'}
+ya_save_dataset()
 ```
   
 ```{r tests-ya_save_dataset}
@@ -1729,9 +1718,7 @@ ya_get_dataset_item <- function(lang = "EN"){
 ```
   
 ```{r example-ya_get_dataset_item}
-#'\dontrun{
-#'ya_get_dataset_item()
-#'}
+ya_get_dataset_item()
 ```
   
 ```{r tests-ya_get_dataset_item}
@@ -1841,9 +1828,7 @@ ya_save_dataset_item <- function(lang = "EN", extension = "rds"){
 ```
   
 ```{r example-ya_save_dataset_item}
-#'\dontrun{
-#'ya_save_dataset_item()
-#'}
+ya_save_dataset_item()
 ```
   
 ```{r tests-ya_save_dataset_item}
@@ -1991,9 +1976,7 @@ ya_get_dimension <- function(lang = "EN"){
 ```
   
 ```{r example-ya_get_dimension}
-#'\dontrun{
-#'ya_get_dimension()
-#'}
+ya_get_dimension()
 ```
   
 ```{r tests-ya_get_dimension}
@@ -2092,19 +2075,15 @@ ya_save_dimension <- function(lang = "EN", extension = "rds"){
 ```
   
 ```{r example-ya_save_dimension}
-#'\dontrun{
-#'ya_save_dimension()
-#'}
+ya_save_dimension()
 ```
   
 ```{r tests-ya_save_dimension}
-
-#'\dontrun{}
+#'\dontrun{
 # test_that("ya_save_dimension works", {
 #   expect_true(inherits(ya_save_dimension, "function")) 
 # })
 #'}
-
 ```
   
 
@@ -2259,9 +2238,7 @@ ya_get_dimension_item <- function(lang = "EN"){
 ```
   
 ```{r example-ya_get_dimension_item}
-#'\dontrun{
-#'ya_get_dimension_item()
-#'}
+ya_get_dimension_item()
 ```
   
 ```{r tests-ya_get_dimension_item}
@@ -2371,19 +2348,15 @@ ya_save_dimension_item <- function(lang = "EN", extension = "rds"){
 ```
   
 ```{r example-ya_save_dimension_item}
-#'\dontrun{
-#'ya_save_dimension_item()
-#'}
+ya_save_dimension_item()
 ```
   
 ```{r tests-ya_save_dimension_item}
-
 #'\dontrun{
 #'test_that("ya_save_dimension_item works", {
 #'  expect_true(inherits(ya_save_dimension_item, "function")) 
 #'})
 #'}
-
 ```
 
 
@@ -2624,19 +2597,15 @@ ya_get_dimension_description <- function(lang = "EN"){
 ```
   
 ```{r example-ya_get_dimension_description}
-#'\dontrun{
-#'ya_get_dimension_description()
-#'}
+ya_get_dimension_description()
 ```
   
 ```{r tests-ya_get_dimension_description}
-
 #'\dontrun{
 #'test_that("ya_get_dimension_description works", {
 #'  expect_true(inherits(ya_get_dimension_description, "function")) 
 #'})
 #'}
-
 ```
    
 
@@ -2782,19 +2751,15 @@ ya_save_dimension_description <- function(lang = "EN", extension = "rds"){
 ```
   
 ```{r example-ya_save_dimension_description}
-#'\dontrun{
-#'ya_save_dimension_description()
-#'}
+ya_save_dimension_description()
 ```
   
 ```{r tests-ya_save_dimension_description}
-
 #'\dontrun{
 #'test_that("ya_save_dimension_description works", {
 #'  expect_true(inherits(ya_save_dimension_description, "function")) 
 #'})
 #'}
-
 ```
 
 
@@ -3025,18 +2990,13 @@ ya_search <- function(query, lang = "EN"){
   }
 }
 
-
 ```
   
 ```{r example-ya_search}
-#'\dontrun{
-#'ya_search(query="ihpc")
-#'}
-
+ya_search(query="ihpc")
 ```
   
 ```{r tests-ya_search}
-
 #'\dontrun{
 #'test_that("ya_search works", {
 #'  expect_true(inherits(ya_search, "function")) 
@@ -3255,11 +3215,7 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
 ```
   
 ```{r example-ya_my_favourites}
-#'\dontrun{
-#'
-#' ya_my_favourites()
-#' 
-#' }
+ya_my_favourites()
 ```
   
 ```{r tests-ya_my_favourites}
@@ -3381,9 +3337,7 @@ ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
 ```
   
 ```{r example-ya_info_serie}
-#'\dontrun{
-#'ya_info_serie(series_id = 12528985)
-#'}
+ya_info_serie(series_id = 12528985)
 ```
   
 ```{r tests-ya_info_serie}

@@ -24,9 +24,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_save_dimension_item()
-#' #'}
+#' ya_save_dimension_item()
 ya_save_dimension_item <- function(lang = "EN", extension = "rds"){
   
   check_language(lang)

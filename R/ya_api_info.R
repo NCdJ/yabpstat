@@ -19,9 +19,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_api_info()
-#' #'}
+#' ya_api_info()
 ya_api_info <- function(lang = "EN") {
   
   lang <- "PT"

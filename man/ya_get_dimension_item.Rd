@@ -16,7 +16,5 @@ A data table with the information in a more human readable form with a search op
 Description: A function that gathers information available in BPstat about the dataset items.
 }
 \examples{
-#'\dontrun{
-#'ya_get_dimension_item()
-#'}
+ya_get_dimension_item()
 }

@@ -26,9 +26,7 @@
 #' @export
 #' 
 #' @examples
-#' #'\dontrun{
-#' #'ya_get_dimension()
-#' #'}
+#' ya_get_dimension()
 ya_get_dimension <- function(lang = "EN"){
 
   check_language(lang)

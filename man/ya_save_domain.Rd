@@ -18,7 +18,5 @@ A file with the available data from the domains in the rds or csv format.
 Description: A function that saves de information avaliable about the BPstat domains
 }
 \examples{
-#'\dontrun{
-#'ya_save_domain()
-#'}
+ya_save_domain()
 }

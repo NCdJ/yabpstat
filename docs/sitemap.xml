@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ncdj.github.io/yabpstat/404.html</loc>
+    <loc>/404.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/articles/get-started.html</loc>
+    <loc>/articles/get-started.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/articles/index.html</loc>
+    <loc>/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/authors.html</loc>
+    <loc>/authors.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/index.html</loc>
+    <loc>/index.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/LICENSE-text.html</loc>
+    <loc>/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/LICENSE.html</loc>
+    <loc>/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/news/index.html</loc>
+    <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/index.html</loc>
+    <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_api_info.html</loc>
+    <loc>/reference/ya_api_info.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_get_dataset.html</loc>
+    <loc>/reference/ya_get_dataset.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_get_dataset_item.html</loc>
+    <loc>/reference/ya_get_dataset_item.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_get_dimension.html</loc>
+    <loc>/reference/ya_get_dimension.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_get_dimension_description.html</loc>
+    <loc>/reference/ya_get_dimension_description.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_get_dimension_item.html</loc>
+    <loc>/reference/ya_get_dimension_item.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_get_domain.html</loc>
+    <loc>/reference/ya_get_domain.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_info_serie.html</loc>
+    <loc>/reference/ya_info_serie.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_my_favourites.html</loc>
+    <loc>/reference/ya_my_favourites.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_save_dataset.html</loc>
+    <loc>/reference/ya_save_dataset.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_save_dataset_item.html</loc>
+    <loc>/reference/ya_save_dataset_item.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_save_dimension.html</loc>
+    <loc>/reference/ya_save_dimension.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_save_dimension_description.html</loc>
+    <loc>/reference/ya_save_dimension_description.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_save_dimension_item.html</loc>
+    <loc>/reference/ya_save_dimension_item.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_save_domain.html</loc>
+    <loc>/reference/ya_save_domain.html</loc>
   </url>
   <url>
-    <loc>https://ncdj.github.io/yabpstat/reference/ya_search.html</loc>
+    <loc>/reference/ya_search.html</loc>
   </url>
 </urlset>

@@ -23,7 +23,5 @@ From the user choice can be a plot, a table or a tibble for further analysis
 Description: A function allows to user to plot, see in a table or reuse in other context, data from a determined BPstat serie ID.
 }
 \examples{
-#'\dontrun{
-#'ya_info_serie(series_id = 12528985)
-#'}
+ya_info_serie(series_id = 12528985)
 }
