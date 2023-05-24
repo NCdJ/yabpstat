@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>BPSTAT: PESQUISA 2.0</title>
+
+
+<script src="knit1_files/kePrint-0.0.1/kePrint.js"></script>
+<link href="knit1_files/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+<link href='https://fonts.googleapis.com/css?family=Special Elite' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Rasa' rel='stylesheet'>
+
+<!--
+Here are the required style attributes for css to make this poster work :)
+-->
+<style>
+@page {
+size: 36in 48in;
+margin: 0;
+padding: 0;
+}
+body {
+margin: 0px;
+padding: 0px;
+width: 36in;
+height: 48in;
+text-align: justify;
+font-size: 45px;
+line-height: 1.05;
+}
+/* RMarkdown Class Styles */
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r {
+background-color: #dddddd40;
+border-radius: 4mm;
+padding: 4mm;
+width: 75%;
+margin: auto;
+margin-top: 1em;
+margin-bottom: 1em;
+/* align-items: center; */
+}
+code.sourceCode.r{
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+code {
+font-size: 25pt;
+font-family: monospace;
+background-color: #648db524;
+color: #2596be;
+padding: 1.2mm;
+line-height: 1;
+border-radius: 2mm;
+}
+caption {
+margin-bottom: 10px;
+font-size: 20pt;
+font-style: italic;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #648db520;
+}
+.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td{
+  border-spacing: 0;
+  font-size: 40%;
+  border-style: none;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-right: 1em;
+  padding-left: 1em;
+  line-height: 1em;
+}
+table {
+  margin: auto;
+}
+th {
+  padding-left: 5mm;
+  padding-right: 5mm;
+}
+.caption {
+font-size: 20pt;
+font-style: italic;
+padding-top: 0;
+}
+.references {
+font-size: 20px;
+line-height: 90%;
+}
+/* Create three unequal columns that floats next to each other */
+.column {
+float: left;
+padding: 0px;
+}
+.outer {
+width: 36in;
+height: calc(48in *  (1 - 0.2 - 0.1 - 0.01) );
+-webkit-column-count: 3; /* Chrome, Safari, Opera */
+-moz-column-count: 3; /* Firefox */
+column-count: 3;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+column-gap: 0;
+padding-left: 0cm;
+padding-right: 0cm;
+/* -webkit-column-rule-width: 50%;
+-moz-column-rule-width: 50%;
+column-rule-width: 50%; */
+-webkit-column-rule-style: none;
+-moz-column-rule-style: none;
+column-rule-style: none;
+-webkit-column-rule-color: black;
+-moz-column-rule-color: black;
+column-rule-color: black;
+background-color: #ffffff;
+font-family: Rasa;
+margin-top: calc(48in *  0.2 );
+padding-top: 1em;
+padding-bottom: 1em;
+}
+span.citation {
+  color: #648db5;
+  font-weight: bold;
+}
+a {
+text-decoration: none;
+color: #648db5;
+}
+#title {
+font-size: 125pt;
+text-align: left;
+margin: 0;
+line-height: 98%;
+border-bottom: 0;
+font-weight: normal;
+background: 0;
+}
+#author {
+color: #2596be;
+margin: 0;
+line-height: 85%;
+font-size: 1.17em;
+}
+#affiliation {
+padding-top: 0.1em;
+color: ;
+font-style: italic;
+font-size: 25px;
+margin: 0;
+}
+sup {
+color: #937543;
+}
+.affiliation sup {
+font-size: 20px;
+}
+.author {
+text-align: left;
+}
+.author sup {
+font-size: 30px;
+}
+.author_extra {
+color: #648db5;
+margin: 0;
+line-height: 85%;
+font-size: 35px;
+text-align: left;
+}
+.outer h1, h2, h3, h4, h5, h6 {
+text-align: center;
+margin: 0;
+font-weight: bold;
+}
+.section h1 {
+  text-align:center;
+  padding-bottom:5px;
+  background:
+    linear-gradient(
+      to left,
+      #ffffff 1%,
+      #ffffff 20%,
+      #2596be75 33%,
+      #2596be 50%,
+      #2596be75 66%,
+      #ffffff 80%,
+      #ffffff 99%
+    )
+    left
+    bottom
+    #ffffff
+    no-repeat;
+  background-size:100% 5px ;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.outer h2 {
+text-align: center;
+}
+.outer p, .level2 {
+color: #000000;
+}
+.outer ol {
+padding-left: 8%;
+padding-right: 8%;
+text-align: left;
+}
+.main {
+width: 36in;
+height: calc(48in * 0.2);
+position: absolute;
+background-color: #2596be;
+color: #ffffff90;
+font-family: Special Elite;
+background-image: linear-gradient(#2596be 50%,#648db5);
+}
+.main strong {
+color: #ffffff;
+}
+.main strong > sup {
+color: #ffffff;
+}
+.main sup {
+color: #ffffff90;
+}
+#main-img-left {
+width: 10%;
+left: 0.5in;
+bottom: 0.2in;
+position: absolute;
+}
+#main-img-center {
+width: 10%;
+left: calc(36in * 0.45);
+bottom: 0.5in;
+position: absolute;
+}
+#main-img-right {
+width: 10%;
+right: 0.5in;
+bottom: 0.2in;
+position: absolute;
+}
+.main p {
+font-size: 150px;
+font-family: Special Elite;
+text-align: center;
+margin: 0;
+position: absolute;
+top: 50%;
+-ms-transform: translateY(-50%);
+transform: translateY(-50%);
+margin-left: 1em;
+}
+.fab {
+color: #00000030;
+font-size: 25px;
+}
+.twitter, i {
+color: #00000030;
+font-size: 35px;
+text-decoration: none;
+}
+a.email {
+text-decoration: none;
+color: #00000030;
+font-size: 35px;
+}
+.envelope {
+color: #00000030;
+font-size: 5px;
+text-decoration: none;
+}
+.poster_wrap {
+width: 36in;
+height: 48in;
+padding: 0cm;
+}
+.main_bottom {
+width: 36in;
+height: calc(48in * 0.1);
+margin-top: calc(48in * (1 - 0.1));
+position: absolute;
+background-color: #2596be;
+background-image: linear-gradient(#648db5 10%, #2596be);
+}
+.section {
+  padding-left: 10mm;
+  padding-right: 10mm;
+}
+span > #tab:mytable {
+  font-weight: bold;
+}
+.orcid img {
+  width: 3%;
+}
+.emphasis {
+  background-color: #008080;
+  color: #ffffff;
+  border: solid #0b2045 3mm;
+  margin: 1em;
+  padding-left: 0;
+  padding-right: 0;
+}
+.emphasis h1 {
+  font-weight: bold;
+  background: none;
+  background-color: #0b2045;
+  padding-bottom: 5mm;
+  padding-top: 1mm;
+  margin-top: -1mm;
+  margin-right: -1mm;
+  margin-left: -1mm;
+}
+.emphasis blockquote {
+  border: 0;
+}
+.emphasis ol {
+  padding: 0;
+  padding-left: 8%;
+  font-size: 100%;
+  font-weight: bold;
+}
+.emphasis p {
+  color: #ffffff;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+
+<div class="column outer">
+<div class="section">
+<h1 id="title"><strong>BPSTAT: PESQUISA 2.0</strong></h1><br>
+<h3 id="author" class="author">
+
+<strong><img src="shiny.png" /><a href="https://yabstat-teste.shinyapps.io/shiny_bportugal_mongo/">yabstat.shinyapps.io/bportugal</a></strong><sup> </sup><br>
+
+ <strong><img src="GitHub.png" /><a href="https://github.com/NCdJ/yabpstat">github.com/NCdJ/yabpstat</a></strong><sup> </sup><br>
+
+     </h3>
+
+<h5 id="author_extra", class="author_extra">
+  Henrique Luís<sup>1</sup>
+ Maria Ribeiro<sup>2</sup>
+ Nelson Jesus<sup>3</sup>
+ Pedro Ferreira<sup>4</sup>
+ Telma Garção<sup>5</sup>
+</h5>
+
+
+<p id="affiliation" class="affiliation">
+<sup>1</sup> halsa <img src="atr.jpg" />iscte-iul.pt; Licenciatura Ciência de Dados, ISCTE-IUL<br> <sup>2</sup> mcroo2 <img src="atr.jpg" />iscte-iul.pt; Licenciatura Ciência de Dados, ISCTE-IUL<br> <sup>3</sup> nelson_carvalho_jesus <img src="atr.jpg" />iscte-iul.pt; Licenciatura Ciência de Dados, ISCTE-IUL<br> <sup>4</sup> pvfaa <img src="atr.jpg" />iscte-iul.pt; Licenciatura Ciência de Dados, ISCTE-IUL<br> <sup>3</sup> telma_garcao <img src="atr.jpg" />iscte-iul.pt; Licenciatura Ciência de Dados, ISCTE-IUL
+</p>
+</div>
+
+<p><img src="knit1_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto auto auto 0;" /></p>
+<div id="introdução" class="section level2">
+<h2>Introdução</h2>
+<p>No BPstat, o Banco de Portugal divulga um vasto conjunto de estatísticas sobre a economia portuguesa e da área euro, que podem ser consultadas por domínios (<code>BPstat &gt; Domínios</code>), exploradas de forma personalizada (<code>BPstat &gt; Dados &gt; Exploração Livre</code>) ou exploradas com recurso a séries e quadros pré-definidos (<code>BPstat &gt; Dados &gt; Exploração em Árvore</code>). Com mais de 270 mil séries à disposição, os utilizadores podem ainda fazer uso da pesquisa exclusiva, isto é, o acesso ao conteúdo é feito através de uma <em>query</em> na barra de navegação.
+O desafio insere-se num problema de <strong><em>information retrieval</em></strong>.</p>
+<div id="objetivos" class="section level3">
+<h3>Objetivos</h3>
+<p>Os objetivos estão dirigidos à pesquisa exclusiva e ao refinamento das queries.</p>
+<ol style="list-style-type: decimal">
+<li>Pluralização</li>
+<li><em>Stemming</em></li>
+<li>Expansão por sinónimos</li>
+<li>Lógica axiomática</li>
+<li>Pesquisa avançada</li>
+<li><em>Autocomplete</em></li>
+</ol>
+</div>
+</div>
+<div id="metodologia" class="section level2">
+<h2>Metodologia</h2>
+<p>A abordagem ao desafio implica compreender como a informação está organizada. Os dados encontram-se estruturados no BPstat, contudo as <em>queries</em> podem retornar informação não relevante para os utilizadores. A primeira fase de testes identifica a oportunidade de mapear termos procurados com frequência a sinónimos e palavras relacionadas.
+As séries estatísticas são recolhidas através da API do Banco de Portugal, em formato JSON, e carregadas num <em>cluster</em> do MongoDB Atlas.</p>
+<p>As diferentes fases do projeto utilizam várias técnicas.</p>
+<ul>
+<li>Tokenização</li>
+<li>Webscraping</li>
+<li>ETL - Extract, Transform &amp; Load</li>
+</ul>
+<p>A prova de conceito pode ser descrita pelo fluxograma:</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:chunk"></span>
+<img src="images/prova.jpeg" alt="Visão geral do projeto" width="80%" />
+<p class="caption">
+Figura 1: Visão geral do projeto
+</p>
+</div>
+<div id="produtos-intermédios" class="section level3">
+<h3>Produtos Intermédios</h3>
+<ul>
+<li>Dicionário de sinónimos</li>
+<li><em>Thesaurus</em></li>
+<li>REST API</li>
+</ul>
+</div>
+</div>
+<div id="data-science" class="section level2">
+<h2>Data Science</h2>
+<ul>
+<li><em>Forecasting</em> com séries temporais</li>
+<li>TF-IDF</li>
+</ul>
+<p>A funcionalidade de FTS (<em>Full-Text Search</em>) no MongoDB Atlas recorre ao scoring do Apache Lucene, que tem por base o Vector Space Model. Perante uma query do utilizador, é determinado o grau de relevância face à totalidade de documentos.
+Cada documento, <strong><span class="math inline">\(d_{j}\)</span></strong>, e a query, <strong><span class="math inline">\(q\)</span></strong>, são tratados como vectores e a similaridade por cosseno é calculada.</p>
+<p><span class="math display">\[
+\cos (d_{j}, q) =\frac{d_{j}\times q}{\left \| d_{j} \right \|\cdot \left \| q \right \|}
+\]</span></p>
+<table class=" lightable-classic-2" style="font-family: Rasa; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-4">Tabela 1: </span>Scoring da query «euribor 3M»
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Título
+</th>
+<th style="text-align:left;">
+Score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;color: black !important;background-color: #E5E4E2 !important;">
+Montante de empréstimos à habitação própria permanente com taxa variável indexados à Euribor 3M, em percentagem
+</td>
+<td style="text-align:left;color: black !important;background-color: #E5E4E2 !important;">
+1.3782494
+</td>
+</tr>
+<tr>
+<td style="text-align:left;color: black !important;background-color: #E5E4E2 !important;">
+Montante de novos empréstimos à habitação própria permanente com taxa variável indexados à Euribor 3M, em percentagem
+</td>
+<td style="text-align:left;color: black !important;background-color: #E5E4E2 !important;">
+1.3217597
+</td>
+</tr>
+<tr>
+<td style="text-align:left;color: black !important;background-color: #E5E4E2 !important;">
+TBA calculada a partir das EURIBOR - diária
+</td>
+<td style="text-align:left;color: black !important;background-color: #E5E4E2 !important;">
+0.5913645
+</td>
+</tr>
+</tbody>
+</table>
+<p><br>
+A métrica <strong>tf-idf</strong> faz corresponder ao termo <em>t</em> um peso no documento <em>d</em>. Seja <span class="math inline">\(tf_{t,d}\)</span> o <em>term frequency</em> e <span class="math inline">\(idf_{t}\)</span> o <em>inverse document frequency</em> :</p>
+<p><span class="math display">\[
+tf\; idf_{t,d} = tf_{t,d}\times idf_{t}
+\]</span>
+O cálculo do <strong>tf-idf</strong> do termo <code>empresas</code>, por documento, permite identificar <code>Empresas da central de balanços</code> como o domínio onde o termo tem maior relevância.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:chunk2"></span>
+<img src="images/plot.PNG" alt="Domínios por grau de relevância do termo «empresas»" width="80%" />
+<p class="caption">
+Figura 2: Domínios por grau de relevância do termo «empresas»
+</p>
+</div>
+<p><br></p>
+</div>
+<div id="produtos-finais" class="section level2">
+<h2>Produtos Finais</h2>
+<p>Foram desenvolvidos dois produtos finais.</p>
+<div id="aplicação-shiny" class="section level3">
+<h3>Aplicação Shiny</h3>
+<p>Interface gráfica para pesquisa de séries.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:chunk3"></span>
+<img src="images/shiny.PNG" alt="Versão em shiny do BPstat" width="100%" />
+<p class="caption">
+Figura 3: Versão em shiny do BPstat
+</p>
+</div>
+</div>
+<div id="package" class="section level3">
+<h3>Package</h3>
+<p>Construído em R, permite aceder às séries estatísticas através da <em>BPstat Data API</em>.</p>
+<ul>
+<li>Designação: <span style="color:#2596be"><strong>YABPstat: Yet Another BPstat</strong></span></li>
+<li>Versão: 0.0.0.9000</li>
+<li>Licença: MIT</li>
+</ul>
+<p><strong><em>INSTALAÇÃO</em></strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;NCdJ/yabpstat&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yabpstat)</span></code></pre></div>
+</div>
+</div>
+<div id="agradecimentos" class="section level2">
+<h2>Agradecimentos</h2>
+<p>Ao Professor José Dias e ao Professor Jorge Sinval por nos terem auxiliado a ultrapassar os obstáculos com que nos deparámos ao longo deste projeto e a transformá-los, assim, em oportunidades.</p>
+</div>
+
+</div>
+<div class="main">
+<p><strong>É POSSÍVEL ENCONTRAR UMA AGULHA NUM PALHEIRO?</strong><br> <br> <img src="iscte.png" /></p>
+</div>
+<div class="main_bottom">
+<img id="main-img-left" src=https://raw.githubusercontent.com/TelmaG/posterdown/main/Meu%20projeto.png>
+<img id="main-img-center" src=https://raw.githubusercontent.com/TelmaG/posterdown/main/My_Video_Page.png>
+<img id="main-img-right" src=https://raw.githubusercontent.com/TelmaG/posterdown/main/Meu%20projeto.png>
+</div>
+</div>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+var script = document.createElement("script");
+script.type = "text/javascript";
+var src = "true";
+if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+if (location.protocol !== "file:" && /^https?:/.test(src))
+src = src.replace(/^https?:/, '');
+script.src = src;
+document.getElementsByTagName("head")[0].appendChild(script);
+})();
+</script>
+
+
+</body>
+</html>
