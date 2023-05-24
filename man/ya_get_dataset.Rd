@@ -16,5 +16,5 @@ A data table with the information about the BPstat domains
 Description: Gathers information about the datasets in BPstat.
 }
 \examples{
-ya_get_dataset()
+#'ya_get_dataset()
 }

@@ -22,7 +22,7 @@
 #' @export
 #' 
 #' @examples
-#' ya_save_domain()
+#' #'ya_save_domain()
 ya_save_domain <- function(lang = "EN", extension = "rds"){
   
   check_language(lang)

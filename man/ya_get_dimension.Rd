@@ -16,5 +16,5 @@ A DT datatable in RStudio viewer pane
 Description: A function gathers information about BPstat domains located at "https://bpstat.bportugal.pt/data/v1/domains/?lang=" ("PT" or "EN")
 }
 \examples{
-ya_get_dimension()
+#'ya_get_dimension()
 }

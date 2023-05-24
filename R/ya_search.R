@@ -22,13 +22,14 @@
 #' @importFrom dplyr relocate
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
+#' @importFrom utils View
 #' 
 #' @return A data table with the query results from BPstat.
 #' 
 #' @export
 #' 
 #' @examples
-#' ya_search(query="ihpc")
+#' #'ya_search(query="ihpc")
 ya_search <- function(query, lang = "EN"){
   
   check_language(lang)
@@ -49,7 +50,6 @@ ya_search <- function(query, lang = "EN"){
   
   
   if (nchar(query) < 3) {
-    
     if (lang == "EN" || lang == "en") {
       err_msg <- paste0(
         "Not enough letters to make a query.",
@@ -93,9 +93,9 @@ ya_search <- function(query, lang = "EN"){
     
   }
   
-  raw_response <-  response %>% 
+  raw_response <-  response %>%
     httr2::resp_body_json()
-
+  
   if (raw_response$count == 0) {
     message("There's no results to show.")
     
@@ -115,28 +115,29 @@ ya_search <- function(query, lang = "EN"){
     }
     
     tryCatch({
-      results_df <- dplyr::tibble()
+      df_data <- dplyr::tibble()
       
       for (pag in 1:num_pages) {
-        
         results <- NULL
         
-        q <- paste0(basepath,
-                    utils::URLencode(query),
-                    "&code=VET&language=",
-                    toupper(lang),
-                    "&page=",
-                    pag,
-                    "&page_size=",
-                    page_size)
-
-        results <- httr2::request(q) %>% 
-          httr2::req_user_agent("YABPstat package") %>% 
-          httr2::req_perform() %>% 
+        q <- paste0(
+          basepath,
+          utils::URLencode(query),
+          "&code=VET&language=",
+          toupper(lang),
+          "&page=",
+          pag,
+          "&page_size=",
+          page_size
+        )
+        
+        results <- httr2::request(q) %>%
+          httr2::req_user_agent("YABPstat package") %>%
+          httr2::req_perform() %>%
           httr2::resp_body_json()
-
-        results_df <-
-          rbind(results_df, as.data.frame(do.call(rbind, results$data)))
+        
+        df_data <-
+          rbind(df_data, as.data.frame(do.call(rbind, results$data)))
         
       }
       
@@ -164,7 +165,7 @@ ya_search <- function(query, lang = "EN"){
         
       }
       
-      results_df <- results_df %>%
+      df_data <- df_data %>%
         dplyr::select(id, title, description, pub_date) %>%
         dplyr::mutate(
           link = paste0(
@@ -178,31 +179,35 @@ ya_search <- function(query, lang = "EN"){
         dplyr::relocate(link, .before = title) %>%
         dplyr::select(-c(id))
       
-      
-      DT::datatable(
-        data = results_df,
-        style = 'auto',
-        class = 'cell-border stripe',
-        caption = htmltools::tags$caption(
-          style = 'caption-side: top;
+      if (commandArgs()[1] == "RStudio") {
+        DT::datatable(
+          data = df_data,
+          style = 'auto',
+          class = 'cell-border stripe',
+          caption = htmltools::tags$caption(
+            style = 'caption-side: top;
                         text-align: center;
                         color:black;  font-size:200% ;
                         padding-top: 20px;
                         padding-bottom: 15px;',
-          capt
-        ),
-        rownames = FALSE,
-        escape = FALSE,
-        colnames = column_names,
-        options = list(
-          columnDefs = list(list(
-            className = 'dt-center', targets = c(0)
-          )),
-          searchHighlight = TRUE,
-          search = list(regex = TRUE),
-          language = list(url = translate_to)
+            capt
+          ),
+          rownames = FALSE,
+          escape = FALSE,
+          colnames = column_names,
+          options = list(
+            columnDefs = list(list(
+              className = 'dt-center', targets = c(0)
+            )),
+            searchHighlight = TRUE,
+            search = list(regex = TRUE),
+            language = list(url = translate_to)
+          )
         )
-      )
+      } else {
+        utils::View(x = df_data, title = capt)
+        
+      }
       
     }, error = function(e) {
       if (lang == "EN" || lang == "en") {

@@ -18,5 +18,5 @@ A file with the information about BPstat description of dimensions with the rds 
 Description: A function that saves de information available about the BPstat description of dimensions.
 }
 \examples{
-ya_save_dimension_description()
+#'ya_save_dimension_description()
 }

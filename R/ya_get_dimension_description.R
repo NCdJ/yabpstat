@@ -23,13 +23,14 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
+#' @importFrom utils View
 #' 
 #' @return A DT datatable in RStudio viewer pane
 #' 
 #' @export
 #' 
 #' @examples
-#' ya_get_dimension_description()
+#' #'ya_get_dimension_description()
 ya_get_dimension_description <- function(lang = "EN"){
   
   check_language(lang)
@@ -41,15 +42,14 @@ ya_get_dimension_description <- function(lang = "EN"){
   basepath_url <- "https://bpstat.bportugal.pt"
   
   url <- paste0(basepath_url,
-             "/data/v1/domains/?lang=",
-             toupper(lang))
+                "/data/v1/domains/?lang=",
+                toupper(lang))
   
   tryCatch({
-    
-    response <- httr2::request(url) %>% 
-      httr2::req_user_agent("YABPstat package") %>% 
+    response <- httr2::request(url) %>%
+      httr2::req_user_agent("YABPstat package") %>%
       httr2::req_perform()
-
+    
     
     st_c <- httr2::resp_status(response)
     
@@ -66,129 +66,133 @@ ya_get_dimension_description <- function(lang = "EN"){
       stop(stp_msg)
       
       
-    } 
+    }
+    
+    raw_response <- httr2::resp_body_raw(response)
+    
+    temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+    
+    temp_df <- temp_df %>%
+      dplyr::select(dimensions_href, num_series) %>%
+      tidyr::drop_na()
+    
+    for (row in 1:nrow(temp_df)) {
+      tmp_dset_df <- rbind(tmp_dset_df,
+                           generate_dimensions(temp_df$dimensions_href[[row]]))
+    }
+    
+    
+    item_url_status <- function(url) {
+      response <- httr2::request(url) %>%
+        httr2::req_user_agent("YABPstat package") %>%
+        httr2::req_error(
+          is_error = function(response)
+            FALSE
+        ) %>%
+        httr2::req_perform()
       
-      raw_response <- httr2::resp_body_raw(response)
+      return(response$status_code)
       
-      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
-      
-      temp_df <- temp_df %>%
-        dplyr::select(dimensions_href, num_series) %>%
-        tidyr::drop_na()
-      
-      for (row in 1:nrow(temp_df)) {
-        tmp_dset_df <- rbind(tmp_dset_df,
-                             generate_dimensions(temp_df$dimensions_href[[row]]))
-      }
-      
-
-      item_url_status <- function(url) {
+    }
+    
+    tmp_dset_df <- tmp_dset_df %>%
+      dplyr::select(item_href) %>%
+      dplyr::mutate(status = sapply(item_href, item_url_status)) %>%
+      dplyr::filter(status == 200) %>%
+      dplyr::select(item_href)
+    
+    df_data <- dplyr::tibble()
+    
+    for (row in 1:nrow(tmp_dset_df)) {
+      tryCatch({
+        tmp_df <- NULL
         
-        response <- httr2::request(url) %>% 
-          httr2::req_user_agent("YABPstat package") %>% 
-          httr2::req_error(is_error = function(response) FALSE) %>% 
+        get_description <-
+          httr2::request(tmp_dset_df[row,]) %>%
+          httr2::req_user_agent("YABPstat package") %>%
           httr2::req_perform()
         
-        return(response$status_code)
+        raw_response <- httr2::resp_body_raw(get_description)
         
-      }
-      
-      tmp_dset_df <- tmp_dset_df %>%
-        dplyr::select(item_href) %>%
-        dplyr::mutate(status = sapply(item_href, item_url_status)) %>%
-        dplyr::filter(status == 200) %>%
-        dplyr::select(item_href)
-      
-      full_df <- dplyr::tibble()
-      
-      for (row in 1:nrow(tmp_dset_df)) {
+        contents <-
+          jsonlite::fromJSON(rawToChar(raw_response))
         
-        tryCatch({
-          tmp_df <- NULL
-          
-          get_description <-
-            httr2::request(tmp_dset_df[row, ]) %>% 
-            httr2::req_user_agent("YABPstat package") %>% 
-            httr2::req_perform()
-          
-          raw_response <- httr2::resp_body_raw(get_description)
-          
-          contents <-
-            jsonlite::fromJSON(rawToChar(raw_response))
-          
-          tmp_lst <-
-            do.call(rbind, contents$category$label)
-          
-          tmp_df <- as.data.frame(tmp_lst) %>%
-            dplyr::rename(value = V1)
-          
-          tmp_df <-
-            cbind(label = rownames(tmp_df), tmp_df)
-          
-          rownames(tmp_df) <- 1:nrow(tmp_df)
-          
-          tmp_df <- tmp_df %>%
-            mutate(version = contents$version,
-                   category_label = contents$label,
-                    href = contents$href,
-                    extension_id = contents$extension$id,
-                    extension_description = contents$extension$description,
-                    class = contents$class,
-                    source = contents$source)
-          
-          full_df <- rbind(full_df, tmp_df)
-          
-        },
-        error = function(e) {
-          message("Erro: \n")
-          # print(e)
-          row = row + 1
-        })
-      }
-      
-      if (lang == "EN" | lang == "en") {
-        column_names <-
-          c(
-            "Label",
-            "Value",
-            "Version",
-            "Category label",
-            "Hyperlink",
-            "Extension ID",
-            "Extension description",
-            "Class",
-            "Source"
+        tmp_lst <-
+          do.call(rbind, contents$category$label)
+        
+        tmp_df <- as.data.frame(tmp_lst) %>%
+          dplyr::rename(value = V1)
+        
+        tmp_df <-
+          cbind(label = rownames(tmp_df), tmp_df)
+        
+        rownames(tmp_df) <- 1:nrow(tmp_df)
+        
+        tmp_df <- tmp_df %>%
+          mutate(
+            version = contents$version,
+            category_label = contents$label,
+            href = contents$href,
+            extension_id = contents$extension$id,
+            extension_description = contents$extension$description,
+            class = contents$class,
+            source = contents$source
           )
         
-        capt <- "YABPstat: Dimensions description"
+        df_data <- rbind(df_data, tmp_df)
         
-        translate_to <-
-          "//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json"
-        
-      } else {
-        column_names <-
-          c(
-            "Etiqueta",
-            "Valor",
-            "Vers\u00e3o",
-            "Categoria",
-            "Hiperliga\u00e7\u00e3o",
-            "ID extens\u00e3o",
-            "Descri\u00e7\u00e3o da extens\u00e3o",
-            "Classe",
-            "Origem"
-          )
-        
-        capt <-
-          "YABPstat: Descri\u00e7\u00e3o das dimens\u00f5es"
-        
-        translate_to <-
-          "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
-        
-      }
+      },
+      error = function(e) {
+        message("Erro: \n")
+        # print(e)
+        row = row + 1
+      })
+    }
+    
+    if (lang == "EN" | lang == "en") {
+      column_names <-
+        c(
+          "Label",
+          "Value",
+          "Version",
+          "Category label",
+          "Hyperlink",
+          "Extension ID",
+          "Extension description",
+          "Class",
+          "Source"
+        )
       
+      capt <- "YABPstat: Dimensions description"
+      
+      translate_to <-
+        "//cdn.datatables.net/plug-ins/1.10.11/i18n/English.json"
+      
+    } else {
+      column_names <-
+        c(
+          "Etiqueta",
+          "Valor",
+          "Vers\u00e3o",
+          "Categoria",
+          "Hiperliga\u00e7\u00e3o",
+          "ID extens\u00e3o",
+          "Descri\u00e7\u00e3o da extens\u00e3o",
+          "Classe",
+          "Origem"
+        )
+      
+      capt <-
+        "YABPstat: Descri\u00e7\u00e3o das dimens\u00f5es"
+      
+      translate_to <-
+        "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
+      
+    }
+    
+    if (commandArgs()[1] == "RStudio") {
       DT::datatable(
-        data = full_df,
+        data = df_data,
         style = 'auto',
         class = 'cell-border stripe',
         caption = htmltools::tags$caption(
@@ -198,7 +202,8 @@ ya_get_dimension_description <- function(lang = "EN"){
                   font-size:200% ;
                   padding-top: 20px;
                   padding-bottom: 15px;',
-          capt),
+          capt
+        ),
         rownames = FALSE,
         escape = FALSE,
         colnames = column_names,
@@ -213,6 +218,10 @@ ya_get_dimension_description <- function(lang = "EN"){
           language = list(url = translate_to)
         )
       )
+    } else {
+      utils::View(x = df_data, title = capt)
+      
+    }
     
   }, error = function(e) {
     if (lang == "EN" || lang == "en") {
@@ -221,13 +230,15 @@ ya_get_dimension_description <- function(lang = "EN"){
                         "Something went wrong. Please contact the maintainer.")
       
     } else {
-      err_msg <- paste0("Erro: ",
-                        "\n",
-                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      err_msg <- paste0(
+        "Erro: ",
+        "\n",
+        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento."
+      )
       
     }
     stop(err_msg)
     
   })
-    
+  
 }

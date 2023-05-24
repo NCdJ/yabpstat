@@ -18,5 +18,5 @@ A file with the information about BPstat dataset items with the rds or csv exten
 Description: A function that saves de information available about the BPstat datasets
 }
 \examples{
-ya_save_dataset_item()
+#'ya_save_dataset_item()
 }

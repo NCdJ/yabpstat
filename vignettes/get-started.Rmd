@@ -31,6 +31,8 @@ library(dygraphs)
 library(xts)
 library(utils)
 library(htmltools)
+library(txtplot)
+library(knitr)
 
 ```
 
@@ -55,6 +57,8 @@ pkgload::load_all(path = here::here(), export_all = FALSE)
 ```
 
  
+
+
 # ya_api_info()
 
 Shows useful informations about BPstat API.

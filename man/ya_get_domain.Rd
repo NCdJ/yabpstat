@@ -29,5 +29,5 @@ Dataset URL - The Uniform Resource Location of the dataset in BPstat
 Dimension URL - The Uniform Resource Location of the dimension in BPstat
 }
 \examples{
-ya_get_domain()
+#'ya_get_domain()
 }

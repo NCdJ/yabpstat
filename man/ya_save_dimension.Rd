@@ -18,5 +18,5 @@ A file with the information about BPstat dimensions with the rds or csv extensio
 Description: A function that saves de information available about the BPstat dimensions.
 }
 \examples{
-ya_save_dimension()
+#'ya_save_dimension()
 }

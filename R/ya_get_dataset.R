@@ -20,18 +20,19 @@
 #' @importFrom tidyr drop_na
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
+#' @importFrom utils View
 #' 
 #' @return A data table with the information about the BPstat domains
 #' 
 #' @export
 #' 
 #' @examples
-#' ya_get_dataset()
+#' #'ya_get_dataset()
 ya_get_dataset <- function(lang = "EN"){
 
   check_language(lang)
   
-  temp_df <- dplyr::tibble()
+  df_data <- dplyr::tibble()
   
   basepath_url <- "https://bpstat.bportugal.pt"
   
@@ -40,7 +41,6 @@ ya_get_dataset <- function(lang = "EN"){
                 toupper(lang))
   
   tryCatch({
-    
     response <- httr2::request(url) %>%
       httr2::req_user_agent("YABPstat package") %>%
       httr2::req_perform()
@@ -62,9 +62,9 @@ ya_get_dataset <- function(lang = "EN"){
     } else {
       raw_response <- httr2::resp_body_raw(response)
       
-      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      df_data <- jsonlite::fromJSON(rawToChar(raw_response))
       
-      temp_df <- temp_df %>%
+      df_data <- df_data %>%
         dplyr::select(datasets_href, num_datasets) %>%
         tidyr::drop_na()
       
@@ -87,29 +87,34 @@ ya_get_dataset <- function(lang = "EN"){
         
       }
       
-      DT::datatable(
-        data = temp_df,
-        style = "auto",
-        class = "cell-border stripe",
-        caption = htmltools::tags$caption(
-          style = "caption-side: top;
+      if (commandArgs()[1] == "RStudio") {
+        DT::datatable(
+          data = df_data,
+          style = "auto",
+          class = "cell-border stripe",
+          caption = htmltools::tags$caption(
+            style = "caption-side: top;
                 text-align: center;
                 color:black;  font-size:200% ;
                 padding-top: 20px;
                 padding-bottom: 15px;",
-          capt
-        ),
-        rownames = FALSE,
-        colnames = column_names,
-        options = list(
-          columnDefs = list(list(
-            className = 'dt-center', targets = c(1)
-          )),
-          searchHighlight = TRUE,
-          search = list(regex = TRUE),
-          language = list(url = translate_to)
+            capt
+          ),
+          rownames = FALSE,
+          colnames = column_names,
+          options = list(
+            columnDefs = list(list(
+              className = 'dt-center', targets = c(1)
+            )),
+            searchHighlight = TRUE,
+            search = list(regex = TRUE),
+            language = list(url = translate_to)
+          )
         )
-      )
+      } else {
+        utils::View(x = df_data, title = capt)
+        
+      }
     }
     
   }, error = function(e) {

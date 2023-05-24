@@ -30,15 +30,14 @@
 #' @importFrom dygraphs dyCrosshair
 #' @importFrom dygraphs dyAxis
 #' @importFrom dygraphs dyAxis
-#' 
-#'  
+#' @importFrom txtplot txtplot
 #' 
 #' @return A plot with the data gather from BPstat from the designated serie, chosen by the user
 #' 
 #' @noRd
 #' 
 plot_serie <- function(id, lng){
-
+  
   basepath <- "https://bpstat.bportugal.pt"
   
   url_sv <- paste0(basepath,
@@ -48,11 +47,11 @@ plot_serie <- function(id, lng){
   url_sfv <- paste0(basepath,
                     "/api/series/?view_full=true&page_size=1&series_ids=",
                     id)
-
+  
   response <- httr2::request(url_sfv) %>%
     httr2::req_user_agent("YABPstat package") %>%
     httr2::req_perform()
-
+  
   st_c <- httr2::resp_status(response)
   
   status_description <-
@@ -67,7 +66,7 @@ plot_serie <- function(id, lng){
     
     stop(stp_msg)
   }
-
+  
   url_sv_json <- jsonlite::read_json(url_sv)
   
   df_plot <- url_sv_json %>%
@@ -82,29 +81,39 @@ plot_serie <- function(id, lng){
   
   if (lng == "EN" || lng == "en") {
     titulo <- url_sfv_json[["data"]][["title"]][["EN"]]
-    
-    
+    x_label <- "Year"
+    y_label <- "Value"
   } else {
     titulo <- url_sfv_json[["data"]][["title"]][["PT"]]
-    
+    x_label <- "Ano"
+    y_label <- "Valor"
   }
-
+  
   dados <- xts::xts(x = df_plot$y, order.by = df_plot$ds)
   
-  
-  dygraphs::dygraph(dados, main = titulo) %>%
-    dygraphs::dyOptions(
-      labelsUTC = TRUE,
-      drawGrid = TRUE,
-      colors = "#8F733C",
-      drawPoints = TRUE,
-      pointSize = 2
-    ) %>% 
-    dygraphs::dyRangeSelector(height = 40) %>%
-    dygraphs::dyCrosshair(direction = "vertical") %>%
-    dygraphs::dyAxis("x",
-           drawGrid = FALSE,
-           gridLineColor = "#808080") %>%
-    dygraphs::dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
+  if (commandArgs()[1] == "RStudio") {
+    dygraphs::dygraph(dados, main = titulo) %>%
+      dygraphs::dyOptions(
+        labelsUTC = TRUE,
+        drawGrid = TRUE,
+        colors = "#8F733C",
+        drawPoints = TRUE,
+        pointSize = 2
+      ) %>%
+      dygraphs::dyRangeSelector(height = 40) %>%
+      dygraphs::dyCrosshair(direction = "vertical") %>%
+      dygraphs::dyAxis("x",
+                       drawGrid = FALSE,
+                       gridLineColor = "#808080") %>%
+      dygraphs::dyAxis("y", valueRange = c(min(as.numeric(df_plot$y)), max(as.numeric(df_plot$y))))
+  } else {
+    txtplot::txtplot(
+      y = as.numeric(df_plot$y),
+      x = as.numeric(df_plot$ds),
+      xlab = x_label,
+      ylab = y_label
+    )
+    
+  }
   
 }

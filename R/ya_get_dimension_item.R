@@ -20,18 +20,19 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
+#' @importFrom utils View
 #' 
 #' @return A data table with the information in a more human readable form with a search option using regex.
 #' 
 #' @export
 #' 
 #' @examples
-#' ya_get_dimension_item()
+#' #'ya_get_dimension_item()
 ya_get_dimension_item <- function(lang = "EN"){
   
   check_language(lang)
   
-  tmp_dset_df <- dplyr::tibble()
+  df_data <- dplyr::tibble()
   
   temp_df <- dplyr::tibble()
   
@@ -42,9 +43,8 @@ ya_get_dimension_item <- function(lang = "EN"){
                 toupper(lang))
   
   tryCatch({
-    
-    response <- httr2::request(url) %>% 
-      httr2::req_user_agent("YABPstat package") %>% 
+    response <- httr2::request(url) %>%
+      httr2::req_user_agent("YABPstat package") %>%
       httr2::req_perform()
     
     st_c <- httr2::resp_status(response)
@@ -63,7 +63,6 @@ ya_get_dimension_item <- function(lang = "EN"){
       
       
     } else {
-      
       raw_response <- httr2::resp_body_raw(response)
       
       temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
@@ -93,39 +92,43 @@ ya_get_dimension_item <- function(lang = "EN"){
       }
       
       for (row in 1:nrow(temp_df)) {
-        tmp_dset_df <- rbind(tmp_dset_df,
-                             generate_dimensions(temp_df$dimensions_href[[row]]))
+        df_data <- rbind(df_data,
+                         generate_dimensions(temp_df$dimensions_href[[row]]))
       }
       
       
-      tmp_dset_df <-
-        tmp_dset_df %>% dplyr::select(description,
-                                      item_label,
-                                      item_href)
-      
-      DT::datatable(
-        data = tmp_dset_df,
-        style = "auto",
-        class = "cell-border stripe",
-        caption = htmltools::tags$caption(
-          style = "caption-side: top;
+      df_data <-
+        df_data %>% dplyr::select(description,
+                                  item_label,
+                                  item_href)
+      if (commandArgs()[1] == "RStudio") {
+        DT::datatable(
+          data = df_data,
+          style = "auto",
+          class = "cell-border stripe",
+          caption = htmltools::tags$caption(
+            style = "caption-side: top;
                   text-align: center;
                   color:black;  font-size:200% ;
                   padding-top: 20px;
                   padding-bottom: 15px;",
-          capt
-        ),
-        rownames = FALSE,
-        colnames = column_names,
-        options = list(
-          columnDefs = list(list(
-            className = 'dt-center', targets = c()
-          )),
-          searchHighlight = TRUE,
-          search = list(regex = TRUE),
-          language = list(url = translate_to)
+            capt
+          ),
+          rownames = FALSE,
+          colnames = column_names,
+          options = list(
+            columnDefs = list(list(
+              className = 'dt-center', targets = c()
+            )),
+            searchHighlight = TRUE,
+            search = list(regex = TRUE),
+            language = list(url = translate_to)
+          )
         )
-      )
+      } else {
+        utils::View(x = df_data, title = capt)
+        
+      }
     }
   }, error = function(e) {
     if (lang == "EN" || lang == "en") {
@@ -134,9 +137,11 @@ ya_get_dimension_item <- function(lang = "EN"){
                         "Something went wrong. Please contact the maintainer.")
       
     } else {
-      err_msg <- paste0("Erro: ",
-                        "\n",
-                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      err_msg <- paste0(
+        "Erro: ",
+        "\n",
+        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento."
+      )
       
     }
     stop(err_msg)

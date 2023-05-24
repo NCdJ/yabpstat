@@ -16,5 +16,5 @@ A string with type, status code and description, and api version in Portuguese a
 Description: Shows useful informations such as type, status code and description, and version of current BPstat Data API.
 }
 \examples{
-ya_api_info()
+#'ya_api_info()
 }

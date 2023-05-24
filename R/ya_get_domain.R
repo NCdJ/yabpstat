@@ -31,33 +31,33 @@
 #' @importFrom dplyr tibble
 #' @importFrom DT datatable
 #' @importFrom htmltools tag
+#' @importFrom utils View
 #' 
 #' @return A DT table in the RStudio viewer
 #' 
 #' @export
 #' 
 #' @examples
-#' ya_get_domain()
+#' #'ya_get_domain()
 ya_get_domain <- function(lang = "EN"){
   
   check_language(lang)
   
-  temp_df <- dplyr::tibble()
+  df_data <- dplyr::tibble()
   
   basepath_url <- "https://bpstat.bportugal.pt"
   
   url <- paste0(basepath_url,
-              "/data/v1/domains/?lang=",
-              toupper(lang))
+                "/data/v1/domains/?lang=",
+                toupper(lang))
   
   tryCatch({
-    
-    response <- httr2::request(url) %>% 
-      httr2::req_user_agent("YABPstat package") %>% 
+    response <- httr2::request(url) %>%
+      httr2::req_user_agent("YABPstat package") %>%
       httr2::req_perform()
     
     st_c <- httr2::resp_status(response)
-
+    
     status_description <-
       check_status_code(st_c, lang)
     
@@ -72,8 +72,8 @@ ya_get_domain <- function(lang = "EN"){
       
     } else {
       raw_response <- httr2::resp_body_raw(response)
-    
-      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      
+      df_data <- jsonlite::fromJSON(rawToChar(raw_response))
       
       if (lang == "EN" || lang == "en") {
         column_names <- c(
@@ -120,36 +120,44 @@ ya_get_domain <- function(lang = "EN"){
           '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
         
       } else {
-        err_msg <- paste0("O idioma ainda n\u00e3o \u00e9 suportado.",
-                          "\n",
-                          "Por favor escolha entre \"EN\" ou \"PT\".")
+        err_msg <- paste0(
+          "O idioma ainda n\u00e3o \u00e9 suportado.",
+          "\n",
+          "Por favor escolha entre \"EN\" ou \"PT\"."
+        )
         stop(err_msg)
         
       }
-      
-      DT::datatable(
-        data = temp_df,
-        style = "auto",
-        class = "cell-border stripe",
-        caption = htmltools::tags$caption(
-          style = "caption-side: top;
+      if (commandArgs()[1] == "RStudio") {
+        DT::datatable(
+          data = df_data,
+          style = "auto",
+          class = "cell-border stripe",
+          caption = htmltools::tags$caption(
+            style = "caption-side: top;
                   text-align: center;
                   color:black;  font-size:200% ;
                   padding-top: 20px;
                   padding-bottom: 15px;",
-          capt
-        ),
-        rownames = FALSE,
-        colnames = column_names,
-        options = list(
-          columnDefs = list(list(
-            className = 'dt-center', targets = c(0:12)
-          )),
-          searchHighlight = TRUE,
-          search = list(regex = TRUE),
-          language = list(url = translate_to)
+            capt
+          ),
+          rownames = FALSE,
+          colnames = column_names,
+          options = list(
+            columnDefs = list(list(
+              className = 'dt-center', targets = c(0:12)
+            )),
+            searchHighlight = TRUE,
+            search = list(regex = TRUE),
+            language = list(url = translate_to)
+          )
         )
-      )
+        
+      } else {
+        utils::View(x = df_data, title = capt)
+        
+      }
+      
     }
     
     
@@ -160,15 +168,17 @@ ya_get_domain <- function(lang = "EN"){
                         "Something went wrong. Please contact the maintainer.")
       
     } else {
-      err_msg <- paste0("Erro: ",
-                        "\n",
-                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
+      err_msg <- paste0(
+        "Erro: ",
+        "\n",
+        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento."
+      )
       
     }
     stop(err_msg)
     
   })
   
-    
+  
 }
 

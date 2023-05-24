@@ -25,6 +25,7 @@ Imports:
     httr2,
     jsonlite,
     tidyr,
+    txtplot,
     utils,
     xts
 Suggests: 

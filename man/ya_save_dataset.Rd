@@ -18,5 +18,5 @@ A file with the information about BPstat datasets with the rds or csv extension.
 Description A function that saves de information avaliable about the BPstat datasets
 }
 \examples{
-ya_save_dataset()
+#'ya_save_dataset()
 }

@@ -24,7 +24,7 @@
 #' @export
 #' 
 #' @examples
-#' ya_save_dataset_item()
+#' #'ya_save_dataset_item()
 ya_save_dataset_item <- function(lang = "EN", extension = "rds"){
 
   check_language(lang)

@@ -101,6 +101,9 @@ pkgload::load_all()
 # desinstalação do package
 devtools::unload("yabpstat")
 
+# instalação do package
+devtools::install_github("NCdJ/yabpstat")
+
 # Generate documentation and deal with dependencies
 attachment::att_amend_desc()
 

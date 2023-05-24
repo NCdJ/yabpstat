@@ -20,18 +20,19 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
+#' @importFrom utils View
 #' 
 #' @return A DT datatable in RStudio viewer pane
 #' 
 #' @export
 #' 
 #' @examples
-#' ya_get_dimension()
+#' #'ya_get_dimension()
 ya_get_dimension <- function(lang = "EN"){
 
   check_language(lang)
   
-  temp_df <- dplyr::tibble()
+  df_data <- dplyr::tibble()
   
   basepath_url <- "https://bpstat.bportugal.pt"
   
@@ -62,9 +63,9 @@ ya_get_dimension <- function(lang = "EN"){
     } else {
       raw_response <- httr2::resp_body_raw(response)
       
-      temp_df <- jsonlite::fromJSON(rawToChar(raw_response))
+      df_data <- jsonlite::fromJSON(rawToChar(raw_response))
       
-      temp_df <- temp_df %>%
+      df_data <- df_data %>%
         dplyr::select(dimensions_href, num_series) %>%
         tidyr::drop_na()
       
@@ -86,9 +87,10 @@ ya_get_dimension <- function(lang = "EN"){
           '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
         
       }
+    if (commandArgs()[1] == "RStudio"){
       
       DT::datatable(
-        data = temp_df,
+        data = df_data,
         style = "auto",
         class = "cell-border stripe",
         caption = htmltools::tags$caption(
@@ -110,6 +112,11 @@ ya_get_dimension <- function(lang = "EN"){
           language = list(url = translate_to)
         )
       )
+    } else {
+
+        utils::View(x = df_data, title = capt)
+
+    }
     }
   }, error = function(e) {
     if (lang == "EN" || lang == "en") {

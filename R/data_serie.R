@@ -23,6 +23,7 @@
 #' @importFrom dplyr select
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
+#' @importFrom utils View
 #' 
 #' @return A data tables with information abot the serie
 #' 
@@ -99,7 +100,8 @@ data_serie <- function(id, lng){
       "//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json"
     
   }
-  
+
+      if (commandArgs()[1] == "RStudio"){  
   DT::datatable(
     data = df_data,
     extensions = "Buttons",
@@ -124,6 +126,10 @@ data_serie <- function(id, lng){
       language = list(url = translate_to)
     )
   )
-  
-    
+      } else {
+
+        utils::View(x = df_data, title = capt)
+
+    }
+
 }

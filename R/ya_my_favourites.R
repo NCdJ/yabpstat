@@ -27,12 +27,13 @@
 #' @export
 #' 
 #' @examples
-#' ya_my_favourites()
+#' #'ya_my_favourites()
 ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   check_language(lang)
   
-  fich <- system.file("ya_favourites.rds",package = "yabpstat", mustWork = TRUE)
+  fich <-
+    system.file("ya_favourites.rds", package = "yabpstat", mustWork = TRUE)
   
   favourites <- readRDS(file = fich)
   
@@ -48,7 +49,7 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
     add_favourite(id = series_id, dataset = favourites)
     
   } else if ((operation == "D" |
-             operation == "d") & !(series_id == 0)) {
+              operation == "d") & !(series_id == 0)) {
     delete_favourite(id = series_id, dataset = favourites)
     
   } else if ((operation == "V" |
@@ -70,7 +71,7 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
     }
     
     tryCatch({
-      df_favourites <- dplyr::tibble()
+      df_data <- dplyr::tibble()
       
       response <- httr2::request(url_favourites) %>%
         httr2::req_user_agent("YABPstat package") %>%
@@ -111,14 +112,23 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
           atualizacao <-
             content[[number]][["obs_updated_at"]]
           
-          new_row <- dplyr::tibble(id,
-                                   descricao,
+          new_row <- dplyr::tibble(descricao,
                                    etiqueta,
                                    abreviatura,
-                                   atualizacao)
+                                   atualizacao) %>%
+            dplyr::mutate(
+              link = paste0(
+                "<a href=https://bpstat.bportugal.pt/serie/",
+                id,
+                " target=\"_blank\">",
+                id,
+                "</a>"
+              )
+            ) %>%
+            dplyr::relocate(link, .before = descricao)
           
-          df_favourites <-
-            rbind(df_favourites, new_row)
+          df_data <-
+            rbind(df_data, new_row)
           
         }
         
@@ -153,53 +163,60 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
           
         }
         
-        DT::datatable(
-          data = df_favourites,
-          style = 'auto',
-          class = 'cell-border stripe',
-          caption = htmltools::tags$caption(
-            style = 'caption-side: top;
+        if (commandArgs()[1] == "RStudio") {
+          DT::datatable(
+            data = df_data,
+            style = 'auto',
+            class = 'cell-border stripe',
+            caption = htmltools::tags$caption(
+              style = 'caption-side: top;
                     text-align: center;
                     color:black;
                     font-size:200% ;
                     padding-top: 20px;
                     padding-bottom: 15px;',
-            capt
-          ),
-          rownames = FALSE,
-          escape = FALSE,
-          colnames = column_names,
-          options = list(
-            columnDefs = list(list(
-              className = 'dt-center',
-              targets = c(0)
-            )),
-            searchHighlight = TRUE,
-            search = list(regex = TRUE),
-            order = list(list(0, 'asc')),
-            language = list(url = translate_to)
+              capt
+            ),
+            rownames = FALSE,
+            escape = FALSE,
+            colnames = column_names,
+            options = list(
+              columnDefs = list(list(
+                className = 'dt-center',
+                targets = c(0)
+              )),
+              searchHighlight = TRUE,
+              search = list(regex = TRUE),
+              order = list(list(0, 'asc')),
+              language = list(url = translate_to)
+            )
           )
-        )
+        } else {
+          utils::View(x = df_data, title = capt)
+          
+        }
       }
       
     }, error = function(e) {
       if (lang == "EN" || lang == "en") {
-      err_msg <- paste0("Error: ",
-                        "\n",
-                        "Something went wrong. Please contact the maintainer.")
-      
-    } else {
-      err_msg <- paste0("Erro: ",
-                        "\n",
-                        "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento.")
-      
-    }
-    stop(err_msg)
+        err_msg <- paste0("Error: ",
+                          "\n",
+                          "Something went wrong. Please contact the maintainer.")
+        
+      } else {
+        err_msg <- paste0(
+          "Erro: ",
+          "\n",
+          "Aconteceu um erro inesperado. Por favor entre em contacto com a equipa de desenvolvimento."
+        )
+        
+      }
+      stop(err_msg)
       
     })
     
   } else {
     stop("Please check your arguments. There's something wrong.")
-  }  
-     
+  }
+  
 }
