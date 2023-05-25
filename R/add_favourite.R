@@ -19,7 +19,7 @@
 #' 
 #' @noRd
 #' 
-add_favourite <- function(id, dataset){
+add_favourite <- function(id, dataset, lng){
   
   basepath_url <- "https://bpstat.bportugal.pt"
   
@@ -39,7 +39,7 @@ add_favourite <- function(id, dataset){
   st_c <- httr2::resp_status(response)
   
   status_description <-
-    check_status_code(st_c, lang)
+    check_status_code(st_c, lng)
   
   if (dplyr::between(st_c, 300, 550)) {
     stp_msg <- paste0("Estado :",

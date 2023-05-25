@@ -10,6 +10,8 @@
 #' @param file_name The name of the file to be saved
 #' @param extension The extension name which the file is saved. It only supports "rds" and "csv" for the moment. Defaults to "rds".
 #' 
+#' @importFrom utils write.csv
+#' 
 #' @return A file with extension "rds" or "csv"
 #' 
 #' @noRd
@@ -35,7 +37,7 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
                     ".rds")
     )
   } else if (extension == "csv" || extension == "CSV") {
-    write.csv(
+    utils::write.csv(
       r_object,
       file = paste0(getwd(),
                     "/data/",
@@ -47,5 +49,5 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
     )
     
   }
-  
+
 }

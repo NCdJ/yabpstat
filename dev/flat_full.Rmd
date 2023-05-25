@@ -394,6 +394,8 @@ generate_dimensions <- function(dimensions_href){
 #' @param file_name The name of the file to be saved
 #' @param extension The extension name which the file is saved. It only supports "rds" and "csv" for the moment. Defaults to "rds".
 #' 
+#' @importFrom utils write.csv
+#' 
 #' @return A file with extension "rds" or "csv"
 #' 
 #' @noRd
@@ -419,7 +421,7 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
                     ".rds")
     )
   } else if (extension == "csv" || extension == "CSV") {
-    write.csv(
+    utils::write.csv(
       r_object,
       file = paste0(getwd(),
                     "/data/",
@@ -431,7 +433,7 @@ save_output <- function(r_object, file_directory = "raw", file_name, extension =
     )
     
   }
-  
+
 }
 ```
   
@@ -745,7 +747,7 @@ data_serie <- function(id, lng){
 #' 
 #' @noRd
 #' 
-add_favourite <- function(id, dataset){
+add_favourite <- function(id, dataset, lng){
   
   basepath_url <- "https://bpstat.bportugal.pt"
   
@@ -765,7 +767,7 @@ add_favourite <- function(id, dataset){
   st_c <- httr2::resp_status(response)
   
   status_description <-
-    check_status_code(st_c, lang)
+    check_status_code(st_c, lng)
   
   if (dplyr::between(st_c, 300, 550)) {
     stp_msg <- paste0("Estado :",
@@ -824,7 +826,7 @@ add_favourite <- function(id, dataset){
 #' 
 #' @noRd
 #' 
-delete_favourite <- function(id, dataset){
+delete_favourite <- function(id, dataset, lng){
   
   basepath_url <- "https://bpstat.bportugal.pt"
   
@@ -845,7 +847,7 @@ delete_favourite <- function(id, dataset){
   st_c <- httr2::resp_status(response)
   
   status_description <-
-    check_status_code(st_c, lang)
+    check_status_code(st_c, lng)
   
   if (dplyr::between(st_c, 300, 550)) {
     stp_msg <- paste0("Estado :",
@@ -3119,11 +3121,11 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   if ((operation == "A" |
        operation == "a") & !(series_id == 0)) {
-    add_favourite(id = series_id, dataset = favourites)
+    add_favourite(id = series_id, dataset = favourites, lng = lang)
     
   } else if ((operation == "D" |
               operation == "d") & !(series_id == 0)) {
-    delete_favourite(id = series_id, dataset = favourites)
+    delete_favourite(id = series_id, dataset = favourites, lng = lang)
     
   } else if ((operation == "V" |
               operation == "v") & (series_id == 0)) {

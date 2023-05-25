@@ -46,11 +46,11 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
   
   if ((operation == "A" |
        operation == "a") & !(series_id == 0)) {
-    add_favourite(id = series_id, dataset = favourites)
+    add_favourite(id = series_id, dataset = favourites, lng = lang)
     
   } else if ((operation == "D" |
               operation == "d") & !(series_id == 0)) {
-    delete_favourite(id = series_id, dataset = favourites)
+    delete_favourite(id = series_id, dataset = favourites, lng = lang)
     
   } else if ((operation == "V" |
               operation == "v") & (series_id == 0)) {
