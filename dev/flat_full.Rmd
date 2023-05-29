@@ -3435,7 +3435,8 @@ ya_info_serie <- function(series_id = 0, operation = "P", lang = "EN"){
       tidyr::unnest_longer(1) %>%
       tidyr::unnest_wider(1) %>%
       dplyr::mutate(dplyr::across(reference_date, as.Date),
-                    dplyr::across(pub_date, as.Date)) %>%
+                    dplyr::across(pub_date, as.Date),
+                    dplyr::across(value, as.numeric)) %>%
       dplyr::select(-c(series_id, privacy_code, is_highlighted, description))
     
     return(df_data)
