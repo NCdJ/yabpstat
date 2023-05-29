@@ -24,13 +24,13 @@ Imports:
     htmltools,
     httr2,
     jsonlite,
+    knitr,
     tidyr,
     txtplot,
     utils,
     xts
 Suggests: 
     here,
-    knitr,
     pkgload,
     rmarkdown,
     testthat

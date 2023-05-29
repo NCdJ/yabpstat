@@ -23,7 +23,7 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A DT datatable in RStudio viewer pane
 #' 
@@ -219,7 +219,11 @@ ya_get_dimension_description <- function(lang = "EN"){
         )
       )
     } else {
-      utils::View(x = df_data, title = capt)
+      knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lllllllll", 
+                     format = "pipe")
       
     }
     

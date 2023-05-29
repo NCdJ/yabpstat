@@ -22,7 +22,7 @@
 #' @importFrom dplyr relocate
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data table with the query results from BPstat.
 #' 
@@ -205,7 +205,11 @@ ya_search <- function(query, lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lllc", 
+                     format = "pipe")
         
       }
       

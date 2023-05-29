@@ -31,7 +31,7 @@
 #' @importFrom dplyr tibble
 #' @importFrom DT datatable
 #' @importFrom htmltools tag
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A DT table in the RStudio viewer
 #' 
@@ -154,7 +154,10 @@ ya_get_domain <- function(lang = "EN"){
         )
         
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names,
+                     format = "pipe")
         
       }
       

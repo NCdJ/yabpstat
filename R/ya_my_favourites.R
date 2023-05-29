@@ -21,6 +21,7 @@
 #' @importFrom dplyr between
 #' @importFrom dplyr %>%
 #' @importFrom DT datatable
+#' @importFrom knitr kable
 #' 
 #' @return A file named «ya_favourites» with user favourite series
 #' 
@@ -192,7 +193,11 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
             )
           )
         } else {
-          utils::View(x = df_data, title = capt)
+          knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "cllll", 
+                     format = "pipe")
           
         }
       }

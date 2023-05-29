@@ -20,7 +20,7 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data table with the information in a more human readable form with a search option using regex.
 #' 
@@ -139,7 +139,11 @@ ya_get_dataset_item <- function(lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "llccc", 
+                     format = "pipe")
         
       }
     }

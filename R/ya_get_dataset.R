@@ -112,7 +112,11 @@ ya_get_dataset <- function(lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lc", 
+                     format = "pipe")
         
       }
     }

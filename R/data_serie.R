@@ -23,7 +23,7 @@
 #' @importFrom dplyr select
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data tables with information abot the serie
 #' 
@@ -67,7 +67,8 @@ data_serie <- function(id, lng){
     tidyr::unnest_longer(1) %>%
     tidyr::unnest_wider(1) %>%
     dplyr::mutate(dplyr::across(reference_date, as.Date),
-                  dplyr::across(pub_date, as.Date)) %>%
+                  dplyr::across(pub_date, as.Date),
+                  dplyr::across(value, as.numeric)) %>%
     dplyr::select(reference_date, value, pub_date)
   
   url_sfv_json <- jsonlite::fromJSON(url_sfv)
@@ -127,8 +128,12 @@ data_serie <- function(id, lng){
     )
   )
       } else {
-
-        utils::View(x = df_data, title = capt)
+        
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "ccc", 
+                     format = "pipe")
 
     }
 

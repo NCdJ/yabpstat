@@ -604,7 +604,7 @@ plot_serie <- function(id, lng){
 #' @importFrom dplyr select
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data tables with information abot the serie
 #' 
@@ -648,7 +648,8 @@ data_serie <- function(id, lng){
     tidyr::unnest_longer(1) %>%
     tidyr::unnest_wider(1) %>%
     dplyr::mutate(dplyr::across(reference_date, as.Date),
-                  dplyr::across(pub_date, as.Date)) %>%
+                  dplyr::across(pub_date, as.Date),
+                  dplyr::across(value, as.numeric)) %>%
     dplyr::select(reference_date, value, pub_date)
   
   url_sfv_json <- jsonlite::fromJSON(url_sfv)
@@ -708,8 +709,12 @@ data_serie <- function(id, lng){
     )
   )
       } else {
-
-        utils::View(x = df_data, title = capt)
+        
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "ccc", 
+                     format = "pipe")
 
     }
 
@@ -1084,7 +1089,7 @@ This function gathers information about BPstat domains located at "https://bpsta
 #' @importFrom dplyr tibble
 #' @importFrom DT datatable
 #' @importFrom htmltools tag
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A DT table in the RStudio viewer
 #' 
@@ -1205,7 +1210,10 @@ ya_get_domain <- function(lang = "EN"){
         )
         
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names,
+                     format = "pipe")
         
       }
       
@@ -1453,7 +1461,11 @@ ya_get_dataset <- function(lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lc", 
+                     format = "pipe")
         
       }
     }
@@ -1612,7 +1624,7 @@ Gathers information available in BPstat about the dataset items.
 #' @importFrom jsonlite fromJSON
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data table with the information in a more human readable form with a search option using regex.
 #' 
@@ -1729,7 +1741,11 @@ ya_get_dataset_item <- function(lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "llccc", 
+                     format = "pipe")
         
       }
     }
@@ -1904,7 +1920,7 @@ This function gathers information about BPstat domains located at "https://bpsta
 #' @importFrom jsonlite fromJSON
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A DT datatable in RStudio viewer pane
 #' 
@@ -1995,8 +2011,12 @@ ya_get_dimension <- function(lang = "EN"){
         )
       )
     } else {
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lc", 
+                     format = "pipe")
 
-        utils::View(x = df_data, title = capt)
 
     }
     }
@@ -2157,7 +2177,7 @@ Gathers information avaliable in BPstat about the dimension items.
 #' @importFrom jsonlite fromJSON
 #' @importFrom htmltools tags
 #' @importFrom DT datatable
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data table with the information in a more human readable form with a search option using regex.
 #' 
@@ -2261,7 +2281,11 @@ ya_get_dimension_item <- function(lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lll", 
+                     format = "pipe")
         
       }
     }
@@ -2438,7 +2462,7 @@ Gathers information avaliable in BPstat about the dimension items and descriptio
 #' @importFrom jsonlite fromJSON
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A DT datatable in RStudio viewer pane
 #' 
@@ -2632,7 +2656,11 @@ ya_get_dimension_description <- function(lang = "EN"){
         )
       )
     } else {
-      utils::View(x = df_data, title = capt)
+      knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lllllllll", 
+                     format = "pipe")
       
     }
     
@@ -2851,7 +2879,7 @@ This function allows to search BPstat through the API. The number of results are
 #' @importFrom dplyr relocate
 #' @importFrom DT datatable
 #' @importFrom htmltools tags
-#' @importFrom utils View
+#' @importFrom knitr kable
 #' 
 #' @return A data table with the query results from BPstat.
 #' 
@@ -3032,7 +3060,11 @@ ya_search <- function(query, lang = "EN"){
           )
         )
       } else {
-        utils::View(x = df_data, title = capt)
+        knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "lllc", 
+                     format = "pipe")
         
       }
       
@@ -3098,6 +3130,7 @@ This function allows user management of favourite series ID from BPstat.
 #' @importFrom dplyr between
 #' @importFrom dplyr %>%
 #' @importFrom DT datatable
+#' @importFrom knitr kable
 #' 
 #' @return A file named «ya_favourites» with user favourite series
 #' 
@@ -3267,7 +3300,11 @@ ya_my_favourites <- function(series_id = 0, operation = "V", lang = "EN"){
             )
           )
         } else {
-          utils::View(x = df_data, title = capt)
+          knitr::kable(x = df_data,
+                     caption = capt,
+                     col.names = column_names, 
+                     align = "cllll", 
+                     format = "pipe")
           
         }
       }
